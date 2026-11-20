@@ -1,0 +1,3984 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b0f17" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <title>PortofolioPensiun PWA — Saham Big Bank, Obligasi FR & Emas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-base: #0b0f17;
+      --bg-elevated: #111827;
+      --bg-card: #131c2e;
+      --bg-input: #0b1220;
+      --bg-hover: #1b2740;
+      --border-subtle: rgba(148, 163, 184, 0.16);
+      --border-strong: rgba(148, 163, 184, 0.28);
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --accent-emerald: #10b981;
+      --accent-emerald-soft: rgba(16, 185, 129, 0.15);
+      --accent-sky: #38bdf8;
+      --accent-sky-soft: rgba(56, 189, 248, 0.15);
+      --accent-amber: #f59e0b;
+      --accent-amber-soft: rgba(245, 158, 11, 0.16);
+      --accent-rose: #fb7185;
+      --accent-rose-soft: rgba(251, 113, 133, 0.16);
+      --accent-indigo: #818cf8;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 9px;
+      --shadow-card: 0 10px 25px -10px rgba(0, 0, 0, 0.55);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    /* Header & Navigation */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(11, 15, 23, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .header-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 12px;
+      padding-bottom: 12px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #10b981 0%, #0284c7 100%);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.25);
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.015em;
+    }
+
+    .brand-sub {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sync-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      max-width: 100%;
+    }
+
+    .status-led {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-amber);
+      flex-shrink: 0;
+    }
+
+    .status-led.online {
+      background: var(--accent-emerald);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.22);
+    }
+
+    .status-led.syncing {
+      background: var(--accent-sky);
+      animation: pulseLed 1.1s infinite ease-in-out;
+    }
+
+    @keyframes pulseLed {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 13px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-ghost {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg-hover);
+    }
+
+    .btn-primary {
+      background: var(--accent-sky);
+      color: #06121e;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      background: #7dd3fc;
+    }
+
+    .btn-emerald {
+      background: var(--accent-emerald);
+      color: #041610;
+      font-weight: 700;
+    }
+
+    .btn-emerald:hover {
+      background: #34d399;
+    }
+
+    .btn-amber {
+      background: var(--accent-amber);
+      color: #1c1202;
+      font-weight: 700;
+    }
+
+    .btn-amber:hover {
+      background: #fbbf24;
+    }
+
+    .btn-rose {
+      background: var(--accent-rose-soft);
+      color: #fda4af;
+      border-color: rgba(251, 113, 133, 0.35);
+    }
+
+    .btn-rose:hover {
+      background: rgba(251, 113, 133, 0.25);
+    }
+
+    /* Auto-Sync URL Bar */
+    .autosync-bar {
+      background: rgba(17, 24, 39, 0.95);
+      border-bottom: 1px solid var(--border-subtle);
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    .autosync-grid {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .autosync-copy {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      flex: 1 1 280px;
+    }
+
+    .autosync-copy strong {
+      color: var(--accent-emerald);
+    }
+
+    .autosync-input-wrap {
+      display: flex;
+      flex: 1 1 320px;
+      max-width: 540px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* Tab Bar */
+    .tab-nav-wrap {
+      padding-top: 18px;
+      padding-bottom: 6px;
+    }
+
+    .tab-nav {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: var(--bg-elevated);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .tab-btn {
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .tab-btn.active {
+      background: var(--accent-sky);
+      color: #061321;
+    }
+
+    /* Main Content & Spacing */
+    .main-area {
+      padding-top: 16px;
+      padding-bottom: 44px;
+    }
+
+    .stack-lg {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .stack-md {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .card-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .card-sub {
+      margin: 3px 0 0;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* 4 Flash Cards Grid */
+    .flash-grid {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    @media (min-width: 640px) {
+      .flash-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .flash-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    .fc-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    .fc-value {
+      margin-top: 6px;
+      margin-bottom: 6px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      word-break: break-word;
+    }
+
+    .fc-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .fc-footer {
+      margin-top: 10px;
+      padding-top: 9px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(148, 163, 184, 0.16);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-emerald), var(--accent-sky));
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+
+    /* Pills / Badges */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+
+    .pill-emerald {
+      background: var(--accent-emerald-soft);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .pill-sky {
+      background: var(--accent-sky-soft);
+      color: #7dd3fc;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+
+    .pill-amber {
+      background: var(--accent-amber-soft);
+      color: #fcd34d;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .pill-rose {
+      background: var(--accent-rose-soft);
+      color: #fda4af;
+      border: 1px solid rgba(251, 113, 133, 0.35);
+    }
+
+    .pill-slate {
+      background: rgba(148, 163, 184, 0.14);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* Charts Grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 1024px) {
+      .charts-grid {
+        grid-template-columns: 5fr 7fr;
+      }
+    }
+
+    .pie-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    @media (min-width: 520px) {
+      .pie-layout {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+
+    .legend-list {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+    }
+
+    .legend-swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      display: inline-block;
+      margin-right: 7px;
+      flex-shrink: 0;
+    }
+
+    .filter-checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .check-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 9px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .check-chip input {
+      accent-color: var(--accent-sky);
+      cursor: pointer;
+    }
+
+    canvas {
+      display: block;
+      max-width: 100%;
+    }
+
+    /* Scheduled AI 3-Day Window Panel */
+    .ai-box {
+      background: linear-gradient(145deg, #0f172a 0%, #162238 100%);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .ai-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 16px;
+    }
+
+    .ai-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    @media (min-width: 900px) {
+      .ai-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .ai-col {
+      background: rgba(11, 15, 23, 0.72);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      color: var(--text-secondary);
+      font-size: 12.5px;
+    }
+
+    .ai-col-title {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .ai-empty-box {
+      background: rgba(11, 15, 23, 0.75);
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 24px 18px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    /* Price Feed Chips */
+    .price-feed-grid {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    @media (min-width: 640px) {
+      .price-feed-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .price-feed-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .price-tile {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 11px 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* Tables */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 680px;
+      font-size: 12.5px;
+    }
+
+    th {
+      background: var(--bg-input);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    td {
+      padding: 11px 12px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .num-right {
+      text-align: right;
+    }
+
+    /* Forms & Inputs */
+    .two-col-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    @media (min-width: 1024px) {
+      .two-col-layout {
+        grid-template-columns: 5fr 7fr;
+        align-items: start;
+      }
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    @media (min-width: 560px) {
+      .form-grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="url"],
+    select {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent-sky);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.16);
+    }
+
+    input::placeholder {
+      color: #64748b;
+    }
+
+    .help-text {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .seg-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .seg-btn {
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-input);
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .seg-btn.active-buy {
+      background: var(--accent-emerald);
+      color: #041610;
+      border-color: var(--accent-emerald);
+    }
+
+    .seg-btn.active-sell {
+      background: var(--accent-rose);
+      color: #1f050b;
+      border-color: var(--accent-rose);
+    }
+
+    .total-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 12px;
+      margin-bottom: 14px;
+    }
+
+    .holding-row {
+      display: grid;
+      grid-template-columns: 1fr 84px 130px auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* Toast & Modal */
+    .toast-stack {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 80;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: calc(100vw - 32px);
+    }
+
+    .toast-item {
+      background: #1e293b;
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      border-left: 4px solid var(--accent-sky);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast-item.ok {
+      border-left-color: var(--accent-emerald);
+    }
+
+    .toast-item.err {
+      border-left-color: var(--accent-rose);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      background: rgba(2, 6, 14, 0.78);
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-panel {
+      width: 100%;
+      max-width: 780px;
+      max-height: 88vh;
+      overflow-y: auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.75);
+    }
+
+    textarea.code-box {
+      width: 100%;
+      min-height: 320px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #060a12;
+      color: #6ee7b7;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11.5px;
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    .app-footer {
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      padding-top: 14px;
+      padding-bottom: 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* ===== Tambahan v2 ===== */
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-sm { padding: 5px 10px; font-size: 11.5px; }
+    :focus-visible { outline: 2px solid var(--accent-sky); outline-offset: 2px; }
+    .toast-close { background: none; border: none; color: #cbd5e1; font-weight: 700; cursor: pointer; }
+    .tone-ok { color: #6ee7b7; }
+    .tone-warn { color: #fcd34d; }
+    .tone-bad { color: #fda4af; }
+    .tone-muted { color: var(--text-muted); }
+    .strong { font-weight: 700; }
+    .small { font-size: 11.5px; }
+    .ai-col p { margin: 0 0 8px; }
+    .ai-col p:last-child { margin-bottom: 0; }
+    .ai-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    .legend-value { color: var(--text-primary); font-weight: 600; }
+    .tile-symbol { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+    .tile-price { font-size: 11.5px; color: var(--text-secondary); }
+    .summary-row td { background: rgba(11, 18, 32, 0.5); font-size: 12px; }
+    .empty-cell { text-align: center; padding: 20px; color: var(--text-muted); }
+    .issues-banner {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: var(--accent-amber-soft);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fcd34d;
+      font-size: 12.5px;
+    }
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+    .preview-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+    }
+    .preview-item strong { font-size: 15px; }
+    @media (max-width: 560px) {
+      .holding-row { grid-template-columns: 1fr 64px 1fr auto; }
+      .toast-stack { left: 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Toast Notifications -->
+  <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="container header-inner">
+      <div class="brand-group">
+        <div class="brand-badge">PP</div>
+        <div>
+          <h1 class="brand-title">PortofolioPensiun</h1>
+          <p class="brand-sub">Saham Big Bank • Obligasi FR • Emas • Auto-Sync Online</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="sync-pill" id="header-sync-pill">
+          <span class="status-led" id="header-sync-led"></span>
+          <span id="header-sync-label">Auto-Sync: Menunggu URL</span>
+        </div>
+
+        <button type="button" class="btn btn-ghost" onclick="openGasModal()">
+          Kode Apps Script (Code.gs)
+        </button>
+
+        <button type="button" class="btn btn-ghost" onclick="exportBackup()" title="Unduh cadangan data (JSON)">Ekspor</button>
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('import-file').click()" title="Pulihkan dari file cadangan">Impor</button>
+        <input type="file" id="import-file" class="hidden" accept="application/json,.json" onchange="importBackupFile(this)" />
+
+        <button type="button" class="btn btn-primary hidden" id="btn-install-pwa" onclick="installPwaApp()">
+          Install PWA
+        </button>
+
+        <button type="button" class="btn btn-rose" onclick="openResetModal()">
+          Reset Data
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Automatic Background Google Sheets URL Bar -->
+  <div class="autosync-bar" id="autosync-url-bar">
+    <div class="container autosync-grid">
+      <div class="autosync-copy">
+        <strong>Sinkron otomatis:</strong> tempel URL Web App Google Apps Script Anda. Data dibaca saat aplikasi dibuka, tab difokuskan, kembali online, dan tiap 60 detik; perubahan profil &amp; transaksi dikirim otomatis (antre bila offline). Harga di sheet diperbarui oleh trigger <code>syncMarketPrices</code> atau tombol Perbarui Harga.
+      </div>
+      <div class="autosync-input-wrap">
+        <input
+          type="url"
+          id="top-gas-url"
+          placeholder="https://script.google.com/macros/s/.../exec"
+          aria-label="URL Web App Google Apps Script"
+          onchange="handleGasUrlInput(this.value)"
+          onblur="handleGasUrlInput(this.value)"
+          onkeydown="if(event.key==='Enter'){event.preventDefault(); handleGasUrlInput(this.value);}"
+        />
+        <button type="button" class="btn btn-ghost" onclick="openGasModal()">Panduan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="container tab-nav-wrap">
+    <nav class="tab-nav" role="tablist" aria-label="Navigasi Utama">
+      <button type="button" role="tab" id="tab-dashboard" class="tab-btn active" aria-selected="true" onclick="switchTab('dashboard')">
+        Dashboard
+      </button>
+      <button type="button" role="tab" id="tab-trade" class="tab-btn" aria-selected="false" onclick="switchTab('trade')">
+        Beli / Jual
+      </button>
+      <button type="button" role="tab" id="tab-profile" class="tab-btn" aria-selected="false" onclick="switchTab('profile')">
+        Profile &amp; Setup
+      </button>
+    </nav>
+  </div>
+
+  <!-- Main Workspace -->
+  <main class="container main-area">
+    <!-- ==================== TAB 1: DASHBOARD ==================== -->
+    <section id="view-dashboard" class="stack-lg">
+      <div id="issues-banner" class="issues-banner hidden" role="status"></div>
+
+      <!-- 4 Flash Cards -->
+      <div class="flash-grid">
+        <div class="card">
+          <span class="fc-eyebrow">Total Aset Saat Ini</span>
+          <div class="fc-value" id="fc-total-asset">Rp 0</div>
+          <div class="fc-meta" id="fc-target-sub">Target: Rp 0 (0%)</div>
+          <div class="progress-track">
+            <div class="progress-fill" id="fc-target-bar" style="width: 0%;"></div>
+          </div>
+          <div class="fc-footer">
+            <span>Modal Bersih:</span>
+            <strong id="fc-net-capital">Rp 0</strong>
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="fc-eyebrow">Porsi Aset (Saham • FR • Emas • Cash)</span>
+          <div class="fc-value" id="fc-portions-main">0% / 0%</div>
+          <div class="fc-meta" id="fc-portions-detail">Saham 0% • FR 0% • Emas 0%</div>
+          <div class="fc-footer">
+            <span>Cash Likuid:</span>
+            <strong id="fc-cash-val">Rp 0 (0%)</strong>
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="fc-eyebrow">Growth Asset (ROI)</span>
+          <div class="fc-value" id="fc-growth-val">Rp 0</div>
+          <div class="fc-meta" id="fc-growth-pct">0,00% dari modal bersih</div>
+          <div class="fc-footer">
+            <span>Emas (Gram):</span>
+            <strong id="fc-gold-grams">0 gr</strong>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+            <span class="fc-eyebrow">Proyeksi Pensiun</span>
+            <span class="pill pill-emerald" id="fc-ontrack-pill">ON TRACK</span>
+          </div>
+          <div class="fc-value" id="fc-projected-val">Rp 0</div>
+          <div class="fc-meta" id="fc-projected-meta">15 thn • Top-up Bulanan • Auto 60d</div>
+          <div class="fc-footer">
+            <span>Jendela Saran AI:</span>
+            <strong id="fc-window-tag">Tgl 25–27</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie Chart & Growth Chart -->
+      <div class="charts-grid">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Pie Chart Portofolio</h2>
+              <p class="card-sub">Komposisi nilai pasar terkini per kelas aset</p>
+            </div>
+            <span class="pill pill-sky" id="pie-total-pill">Rp 0</span>
+          </div>
+          <div class="pie-layout">
+            <canvas id="pie-chart-canvas" width="184" height="184"></canvas>
+            <div class="legend-list" id="pie-legend-list"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Grafik Pertumbuhan Aset</h2>
+              <p class="card-sub">Centang aset yang ingin ditampilkan pada kurva historis &amp; posisi saat ini</p>
+            </div>
+          </div>
+          <div class="filter-checks">
+            <label class="check-chip"><input type="checkbox" class="growth-filter" value="all" checked onchange="renderGrowthChart()" /> Total Aset</label>
+            <label class="check-chip"><input type="checkbox" class="growth-filter" value="stock" checked onchange="renderGrowthChart()" /> Saham</label>
+            <label class="check-chip"><input type="checkbox" class="growth-filter" value="bond" checked onchange="renderGrowthChart()" /> Obligasi FR</label>
+            <label class="check-chip"><input type="checkbox" class="growth-filter" value="gold" checked onchange="renderGrowthChart()" /> Emas</label>
+            <label class="check-chip"><input type="checkbox" class="growth-filter" value="cash" onchange="renderGrowthChart()" /> Cash</label>
+          </div>
+          <canvas id="growth-chart-canvas" width="640" height="220"></canvas>
+        </div>
+      </div>
+
+      <!-- Scheduled 3-Day AI Recommendation Panel -->
+      <section class="ai-box" aria-label="Saran AI Terjadwal">
+        <div class="ai-header">
+          <div>
+            <h2 style="margin:0; font-size:18px; font-weight:800; color:var(--text-primary);">
+              Saran AI Terjadwal (Jendela 3 Hari)
+            </h2>
+            <p style="margin:4px 0 0; font-size:12px; color:var(--text-secondary);" id="ai-window-summary">
+              Memeriksa tanggal rutin di Tab Profile...
+            </p>
+          </div>
+
+          <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
+            <label class="check-chip" style="background:rgba(15,23,42,0.85);">
+              <input type="checkbox" id="chk-sim-window" onchange="renderDashboard()" />
+              <span>Simulasi Tgl Rutin</span>
+            </label>
+            <span class="pill pill-sky" id="ai-window-badge">JADWAL</span>
+            <button type="button" class="btn btn-ghost" onclick="switchTab('profile')">
+              Atur Tanggal Rutin
+            </button>
+          </div>
+        </div>
+
+        <div id="ai-active-content" class="ai-grid">
+          <div class="ai-col">
+            <h3 class="ai-col-title">1. Status On-Track Pensiun</h3>
+            <div id="ai-ontrack-body"></div>
+          </div>
+          <div class="ai-col">
+            <h3 class="ai-col-title">2. Rebalancing Portofolio</h3>
+            <div id="ai-rebalance-body"></div>
+          </div>
+          <div class="ai-col">
+            <h3 class="ai-col-title">3. Opsi Tambahan &amp; Catatan Risiko</h3>
+            <div id="ai-extra-body"></div>
+          </div>
+        </div>
+
+        <div id="ai-empty-content" class="ai-empty-box hidden">
+          <div style="font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:6px;">
+            Saran AI Sedang Kosong (Di Luar Jendela 3 Hari)
+          </div>
+          <p style="margin:0; font-size:12.5px; color:var(--text-muted);" id="ai-empty-reason">
+            Saran AI hanya muncul selama 3 hari mulai dari tanggal rutin yang diatur di Tab Profile.
+          </p>
+        </div>
+      </section>
+
+      <!-- Live Price Feed Summary -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Feed Harga Otomatis (Google Sheets)</h2>
+            <p class="card-sub" id="dash-price-sync-meta">Menunggu data sinkronisasi otomatis...</p>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
+            <span class="pill pill-amber" id="feed-status-pill">Mode Lokal</span>
+            <button type="button" class="btn btn-ghost" onclick="manualRefreshPrices()">↻ Perbarui Harga</button>
+          </div>
+        </div>
+        <div id="dash-price-tiles" class="price-feed-grid"></div>
+      </div>
+
+      <!-- Current Holdings Table -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Rincian Kepemilikan Aset Aktif</h2>
+            <p class="card-sub" id="holdings-table-sub">Harga pasar saham (per lembar/lot), obligasi FR (% par per lot), dan emas (per gram)</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Jenis</th>
+                <th>Ticker / Seri</th>
+                <th class="num-right">Jumlah</th>
+                <th class="num-right">Harga Rata-Rata</th>
+                <th class="num-right">Harga Market</th>
+                <th>Sumber Harga</th>
+                <th class="num-right">Nilai Pasar</th>
+                <th class="num-right">Unrealized P/L</th>
+              </tr>
+            </thead>
+            <tbody id="holdings-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: BELI / JUAL ==================== -->
+    <section id="view-trade" class="two-col-layout hidden">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Eksekusi Beli / Jual</h2>
+            <p class="card-sub">Mendukung Saham (Lot), Obligasi FR (Lot), Emas (Gram), dan Cash</p>
+          </div>
+        </div>
+
+        <div class="seg-group">
+          <button type="button" id="btn-side-buy" class="seg-btn active-buy" onclick="setTradeSide('BUY')">Beli / Tambah</button>
+          <button type="button" id="btn-side-sell" class="seg-btn" onclick="setTradeSide('SELL')">Jual / Kurangi</button>
+        </div>
+
+        <form id="trade-form" onsubmit="submitTradeForm(event)">
+          <div class="form-grid-2">
+            <div class="field">
+              <label for="tx-date">Tanggal Transaksi</label>
+              <input type="date" id="tx-date" required />
+            </div>
+
+            <div class="field">
+              <label for="tx-category">Instrumen</label>
+              <select id="tx-category" onchange="handleTradeCategoryChange()">
+                <option value="STOCK">Saham (Satuan Lot = 100 Lembar)</option>
+                <option value="BOND">Obligasi FR (Satuan Lot @ Rp 1 Juta)</option>
+                <option value="GOLD">Emas (Satuan Gram)</option>
+                <option value="CASH">Cash (Rupiah)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="tx-ticker-block" class="field" style="margin-top:12px;">
+            <label id="tx-ticker-label" for="tx-ticker">Ticker Saham</label>
+            <input
+              type="text"
+              id="tx-ticker"
+              placeholder="Contoh: BBCA, BMRI, BBRI"
+              oninput="handleTradeTickerChange()"
+              list="tx-ticker-list"
+              autocomplete="off"
+              maxlength="20"
+            />
+            <datalist id="tx-ticker-list"></datalist>
+            <span class="help-text" id="tx-ticker-help">Mengubah ticker otomatis memperbarui harga pasar saat mode Harga Market aktif.</span>
+          </div>
+
+          <div class="form-grid-2" style="margin-top:12px;">
+            <div class="field">
+              <label id="tx-qty-label" for="tx-qty">Jumlah Lot</label>
+              <input type="number" id="tx-qty" min="0" step="any" placeholder="Contoh: 10" required oninput="updateTradeTotalPreview()" />
+            </div>
+
+            <div class="field" id="tx-price-mode-block">
+              <label for="tx-price-mode">Opsi Harga</label>
+              <select id="tx-price-mode" onchange="handleTradePriceModeChange()">
+                <option value="MARKET">Harga Market (Otomatis)</option>
+                <option value="MANUAL">Harga Manual</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="tx-price-input-block" class="field" style="margin-top:12px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+              <label id="tx-price-label" for="tx-price">Harga per Lembar (IDR)</label>
+              <span class="pill pill-emerald" id="tx-price-badge">Auto Market</span>
+            </div>
+            <input
+              type="number"
+              id="tx-price"
+              min="0"
+              step="any"
+              placeholder="0"
+              oninput="handleTradePriceInput()"
+            />
+            <span class="help-text" id="tx-price-note">Kosongkan kolom harga manual untuk melihat total Rp 0 secara langsung.</span>
+          </div>
+
+          <div id="tx-funding-block" class="field" style="margin-top:12px;">
+            <label>Sumber Dana Pembelian</label>
+            <div style="display:flex; flex-wrap:wrap; gap:14px; font-size:12.5px; color:var(--text-secondary);">
+              <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+                <input type="radio" name="txFunding" value="CASH_BALANCE" checked onchange="updateTradeTotalPreview()" />
+                <span>Saldo Cash (<strong id="tx-avail-cash">Rp 0</strong>)</span>
+              </label>
+              <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+                <input type="radio" name="txFunding" value="EXTERNAL_TOPUP" onchange="updateTradeTotalPreview()" />
+                <span>Top-up Dana Baru dari Luar</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="total-box">
+            <div>
+              <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Estimasi Total Transaksi</div>
+              <div style="font-size:11.5px; color:var(--text-secondary);" id="tx-unit-formula">1 lot = 100 lembar saham</div>
+            </div>
+            <div style="font-size:18px; font-weight:800; color:var(--text-primary);" id="tx-total-preview">Rp 0</div>
+          </div>
+
+          <button type="submit" id="btn-submit-trade" class="btn btn-emerald" style="width:100%; padding:11px 14px;">
+            Eksekusi Pembelian
+          </button>
+        </form>
+      </div>
+
+      <div class="stack-md">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Ringkasan Feed Harga Aktif</h2>
+              <p class="card-sub" id="trade-feed-sync-meta">Tersinkronisasi otomatis dari Google Apps Script</p>
+            </div>
+          </div>
+          <div id="trade-price-tiles" class="price-feed-grid"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Riwayat Transaksi</h2>
+              <p class="card-sub">Tersimpan di browser &amp; dikirim ke sheet Trades (menghapus di sini tidak menghapus baris di sheet)</p>
+            </div>
+            <span class="pill pill-slate" id="trade-realized-pill">Realized P/L: Rp 0</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tanggal</th>
+                  <th>Aksi</th>
+                  <th>Aset</th>
+                  <th class="num-right">Jumlah</th>
+                  <th class="num-right">Harga</th>
+                  <th class="num-right">Total</th>
+                  <th class="num-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="trade-history-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: PROFILE & SETUP ==================== -->
+    <section id="view-profile" class="stack-lg hidden">
+      <form id="profile-form" class="stack-lg" onsubmit="saveProfileForm(event)">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Pratinjau Proyeksi (Real-time)</h2>
+              <p class="card-sub">Mengikuti isian di bawah sebelum disimpan</p>
+            </div>
+            <span class="pill pill-emerald" id="pv-status">ON TRACK</span>
+          </div>
+          <div class="preview-grid">
+            <div class="preview-item"><span class="fc-eyebrow">Total Aset (draft)</span><strong id="pv-total">Rp 0</strong></div>
+            <div class="preview-item"><span class="fc-eyebrow">Proyeksi Pensiun</span><strong id="pv-projected">Rp 0</strong></div>
+            <div class="preview-item"><span class="fc-eyebrow">Tambahan top-up dibutuhkan</span><strong id="pv-extra">—</strong></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Profil Rencana Pensiun &amp; Jadwal Saran AI</h2>
+              <p class="card-sub">Perubahan langsung memperbarui simulasi Dashboard secara real-time</p>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="field">
+              <label for="prof-target">1. Target Dana Pensiun (IDR)</label>
+              <input type="number" id="prof-target" min="0" step="any" required oninput="previewProfileDraft()" />
+            </div>
+
+            <div class="field">
+              <label for="prof-initial-fund">2. Dana Awal (IDR)</label>
+              <input type="number" id="prof-initial-fund" min="0" step="any" required oninput="previewProfileDraft()" />
+              <span class="help-text" id="prof-fund-hint"></span>
+            </div>
+
+            <div class="field">
+              <label for="prof-topup-type">3. Tipe Top Up</label>
+              <select id="prof-topup-type" onchange="syncTopupInputs(); previewProfileDraft();">
+                <option value="ONCE">Sekali</option>
+                <option value="WEEKLY">Mingguan</option>
+                <option value="MONTHLY">Bulanan</option>
+                <option value="YEARLY">Tahunan</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label id="prof-topup-amount-label" for="prof-topup-amount">Nominal Top Up Bulanan (IDR)</label>
+              <input type="number" id="prof-topup-amount" min="0" step="any" oninput="previewProfileDraft()" />
+            </div>
+
+            <div class="field">
+              <label for="prof-horizon">Horizon Waktu Menuju Pensiun (Tahun)</label>
+              <input type="number" id="prof-horizon" min="1" max="50" step="1" required oninput="previewProfileDraft()" />
+            </div>
+
+            <div class="field">
+              <label for="prof-return">Asumsi Imbal Hasil (%/tahun, nominal)</label>
+              <input type="number" id="prof-return" min="0" max="30" step="any" required oninput="previewProfileDraft()" />
+              <span class="help-text">Dipakai untuk proyeksi &amp; saran AI. Pakai angka yang realistis; belum memperhitungkan inflasi.</span>
+            </div>
+
+            <div class="field">
+              <label for="prof-advice-day">Tanggal Rutin Saran AI (1–31)</label>
+              <input type="number" id="prof-advice-day" min="1" max="31" required oninput="updateRoutineHint(); previewProfileDraft();" />
+              <span class="help-text" id="prof-routine-hint" style="color:#7dd3fc;">
+                Aktif tanggal 25–27 (3 hari), kosong di luar rentang tersebut.
+              </span>
+            </div>
+          </div>
+
+          <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border-subtle);">
+            <div style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:10px;">
+              Target Alokasi Ideal (%) — Acuan Rebalancing Saran AI <span class="pill pill-slate" id="prof-alloc-sum" style="margin-left:6px;">Total: 0%</span>
+            </div>
+            <div class="form-grid-2" style="grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));">
+              <div class="field">
+                <label for="prof-alloc-stock">Saham (%)</label>
+                <input type="number" id="prof-alloc-stock" min="0" max="100" step="1" oninput="previewProfileDraft()" />
+              </div>
+              <div class="field">
+                <label for="prof-alloc-bond">Obligasi FR (%)</label>
+                <input type="number" id="prof-alloc-bond" min="0" max="100" step="1" oninput="previewProfileDraft()" />
+              </div>
+              <div class="field">
+                <label for="prof-alloc-gold">Emas (%)</label>
+                <input type="number" id="prof-alloc-gold" min="0" max="100" step="1" oninput="previewProfileDraft()" />
+              </div>
+              <div class="field">
+                <label for="prof-alloc-cash">Cash (%)</label>
+                <input type="number" id="prof-alloc-cash" min="0" max="100" step="1" oninput="previewProfileDraft()" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">4. Instrumen Awal</h2>
+              <p class="card-sub">Harga pasar diambil otomatis. Harga rata-rata bersifat opsional: kosong = memakai harga pasar saat ini sebagai modal awal (P/L awal = 0)</p>
+            </div>
+          </div>
+
+          <div class="form-grid-2" style="margin-bottom:16px;">
+            <div class="field">
+              <label for="prof-cash">Cash Awal (IDR)</label>
+              <input type="number" id="prof-cash" min="0" step="any" oninput="previewProfileDraft()" />
+            </div>
+            <div class="field">
+              <label for="prof-gold">Emas Awal (Gram)</label>
+              <input type="number" id="prof-gold" min="0" step="any" oninput="previewProfileDraft()" />
+            </div>
+            <div class="field">
+              <label for="prof-gold-avg">Harga Rata-rata Emas Awal (IDR/gram, opsional)</label>
+              <input type="number" id="prof-gold-avg" min="0" step="any" oninput="previewProfileDraft()" />
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="stack-md">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <label style="font-size:12.5px; font-weight:700; color:var(--text-primary);">Saham Awal (Ticker, Lot, Rata-rata/lembar)</label>
+                <button type="button" class="btn btn-ghost" style="padding:5px 10px; font-size:11.5px;" onclick="addInitialStockRow()">+ Saham</button>
+              </div>
+              <div id="prof-stocks-list" class="stack-md"></div>
+            </div>
+
+            <div class="stack-md">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <label style="font-size:12.5px; font-weight:700; color:var(--text-primary);">Obligasi FR Awal (Seri, Lot, Rata-rata/lot)</label>
+                <button type="button" class="btn btn-ghost" style="padding:5px 10px; font-size:11.5px;" onclick="addInitialBondRow()">+ Seri FR</button>
+              </div>
+              <div id="prof-bonds-list" class="stack-md"></div>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-wrap:wrap; justify-content:flex-end; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid var(--border-subtle);">
+            <button type="button" class="btn btn-ghost" onclick="switchTab('dashboard')">Batal</button>
+            <button type="submit" class="btn btn-emerald" style="padding:10px 18px;">Simpan Profile &amp; Sinkronkan Otomatis</button>
+          </div>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="container footer-inner">
+      <span>PortofolioPensiun PWA • Perencanaan pensiun jangka panjang (bukan saran keuangan berlisensi)</span>
+      <span id="footer-sync-status">Auto-Sync: Menunggu URL</span>
+    </div>
+  </footer>
+
+  <!-- Modal Kode Google Apps Script -->
+  <div id="gas-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="gas-modal-title">
+    <div class="modal-panel">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px;">
+        <div>
+          <h3 id="gas-modal-title" style="margin:0; font-size:17px; font-weight:800; color:var(--text-primary);">
+            Google Apps Script Terbaru (<code>Code.gs</code>)
+          </h3>
+          <p style="margin:4px 0 0; font-size:12px; color:var(--text-muted);">
+            Salin ke <strong>Extensions &rarr; Apps Script</strong>, jalankan <code>setupSheets()</code> sekali, pasang trigger waktu untuk <code>syncMarketPrices</code>, lalu Deploy sebagai Web App (Access: Anyone). Bila sudah pernah deploy, pilih <strong>New version</strong>. Opsional: isi <code>API_TOKEN</code> dan tambahkan <code>?token=...</code> pada URL di aplikasi.
+          </p>
+        </div>
+        <button type="button" class="btn btn-ghost" onclick="closeGasModal()">Tutup</button>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+        <button type="button" class="btn btn-emerald" onclick="copyAppsScript()">Salin Kode Code.gs</button>
+      </div>
+
+      <textarea id="gas-script-editor" class="code-box" readonly spellcheck="false"></textarea>
+      <script type="text/plain" id="gas-script-source">
+/**
+ * PortofolioPensiun PWA - Code.gs (v2)
+ * Backend Google Sheets: harga pasar otomatis + penyimpanan Profile & Trades.
+ *
+ * Cara pasang:
+ * 1. Extensions > Apps Script, tempel seluruh kode ini.
+ * 2. Jalankan setupSheets() satu kali (izinkan akses).
+ * 3. Triggers > tambah trigger waktu untuk syncMarketPrices (mis. tiap 15-30 menit).
+ * 4. Deploy > New deployment > Web app (Execute as: Me, Access: Anyone).
+ *    Setiap mengubah kode, buat "New version" pada deployment yang sama.
+ * 5. Tempel URL /exec ke aplikasi. Opsional: isi API_TOKEN di bawah lalu pakai URL
+ *    berbentuk https://script.google.com/macros/s/.../exec?token=RAHASIA
+ */
+
+const SHEET_NAMES = {
+  PROFILE: 'Profile',
+  TRADES: 'Trades',
+  PRICES: 'Prices'
+};
+
+// Opsional: jika diisi, doGet/doPost menolak permintaan tanpa ?token=<API_TOKEN>.
+const API_TOKEN = '';
+
+// Jeda minimum antar refresh harga via ?refresh=1 (detik) agar kuota UrlFetch aman.
+const REFRESH_MIN_GAP_SEC = 60;
+
+const DEFAULT_STOCKS = ['BBCA', 'BBRI', 'BMRI', 'BBNI', 'TLKM', 'ASII'];
+const DEFAULT_FR_BONDS = [
+  { code: 'FR0082', defaultPct: 98.45, note: 'Benchmark 10Y (% par pasar sekunder)' },
+  { code: 'FR0096', defaultPct: 96.80, note: 'Seri FR aktif (% par pasar sekunder)' },
+  { code: 'FR0100', defaultPct: 99.10, note: 'Seri FR aktif (% par pasar sekunder)' }
+];
+
+const GOLD_CONFIG = {
+  mode: 'SPOT_FX',        // 'SPOT_FX' | 'CUSTOM_JSON_URL'
+  spreadMultiplier: 1.00, // mis. 1.07-1.10 untuk mendekati harga emas ritel
+  customJsonUrl: '',
+  customJsonPath: 'pricePerGram'
+};
+
+const FR_CONFIG = {
+  endpointUrl: '',
+  apiKey: ''
+};
+
+// Kolom sheet Prices (A..I)
+const PRICE_HEADERS = [
+  'AssetType', 'Symbol', 'Price', 'Unit', 'Source', 'UpdatedAt',
+  'GoogleFinance', 'FallbackPrice', 'Note'
+];
+
+// Hanya key ini yang boleh ditulis ke sheet Profile (mencegah injeksi formula).
+const PROFILE_KEYS = [
+  'targetRetirement', 'initialFund', 'horizonYears', 'topupType', 'topupAmount',
+  'adviceDay', 'expectedReturnPct', 'targetAlloc', 'cash', 'goldGram',
+  'goldAvgPrice', 'stocks', 'bonds', 'updatedAt'
+];
+
+/* ===================== SETUP ===================== */
+
+function setupSheets() {
+  ensureSheets_();
+  syncMarketPrices();
+}
+
+function ensureSheets_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  let profileSheet = ss.getSheetByName(SHEET_NAMES.PROFILE);
+  if (!profileSheet) {
+    profileSheet = ss.insertSheet(SHEET_NAMES.PROFILE);
+    profileSheet.appendRow(['Key', 'Value', 'UpdatedAt']);
+  }
+
+  let tradesSheet = ss.getSheetByName(SHEET_NAMES.TRADES);
+  if (!tradesSheet) {
+    tradesSheet = ss.insertSheet(SHEET_NAMES.TRADES);
+    tradesSheet.appendRow([
+      'ID', 'Date', 'Action', 'AssetType', 'TickerOrSeries',
+      'Quantity', 'Unit', 'PricePerUnit', 'TotalIDR', 'PriceMode'
+    ]);
+    tradesSheet.getRange('B:B').setNumberFormat('@');
+  }
+
+  let pricesSheet = ss.getSheetByName(SHEET_NAMES.PRICES);
+  const isNewPrices = !pricesSheet;
+  if (isNewPrices) pricesSheet = ss.insertSheet(SHEET_NAMES.PRICES);
+
+  // Header selalu dirapikan (migrasi dari versi lama tanpa menghapus data).
+  pricesSheet.getRange(1, 1, 1, PRICE_HEADERS.length).setValues([PRICE_HEADERS]);
+
+  if (isNewPrices || pricesSheet.getLastRow() < 2) {
+    const now = new Date();
+    DEFAULT_STOCKS.forEach((ticker) => appendStockRow_(pricesSheet, ticker, now));
+    pricesSheet.appendRow([
+      'GOLD', 'GOLD_IDR_GRAM', 0, 'IDR/gram', 'YAHOO_SPOT_FX', now, '', '', 'Spot XAU/USD x USD/IDR'
+    ]);
+    DEFAULT_FR_BONDS.forEach((bond) => {
+      pricesSheet.appendRow([
+        'FR', bond.code, bond.defaultPct, '% par', 'SHEET_REFERENCE', now, '', '', bond.note
+      ]);
+    });
+  }
+  SpreadsheetApp.flush();
+}
+
+function appendStockRow_(sheet, ticker, now) {
+  const row = sheet.getLastRow() + 1;
+  sheet.getRange(row, 1, 1, 9).setValues([[
+    'STOCK', ticker, 0, 'IDR/lembar', 'GOOGLEFINANCE', now,
+    '=IFERROR(GOOGLEFINANCE("IDX:' + ticker + '","price"),"")', '', ''
+  ]]);
+  sheet.getRange(row, 3).setFormula(stockPriceFormula_(row));
+}
+
+// Harga = GOOGLEFINANCE bila ada, jika tidak pakai kolom H (fallback Yahoo yang ditulis script).
+function stockPriceFormula_(row) {
+  return '=IF(ISNUMBER(G' + row + '),G' + row + ',IF(ISNUMBER(H' + row + '),H' + row + ',0))';
+}
+
+/* ===================== SINKRONISASI HARGA ===================== */
+
+function syncMarketPrices() {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) return false;
+  try {
+    ensureSheets_();
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.PRICES);
+    const lastRow = sheet.getLastRow();
+    if (lastRow < 2) return true;
+
+    const data = sheet.getRange(2, 1, lastRow - 1, 8).getValues();
+    const formulas = sheet.getRange(2, 3, lastRow - 1, 1).getFormulas();
+    const now = new Date();
+    const gold = fetchGoldPriceIDR_();
+
+    for (let i = 0; i < data.length; i++) {
+      const row = i + 2;
+      const assetType = String(data[i][0]).trim().toUpperCase();
+      const symbol = String(data[i][1]).trim().toUpperCase();
+      const googleFinanceValue = data[i][6];
+
+      if (assetType === 'STOCK') {
+        const wanted = stockPriceFormula_(row);
+        if (formulas[i][0] !== wanted) sheet.getRange(row, 3).setFormula(wanted);
+
+        if (typeof googleFinanceValue === 'number' && googleFinanceValue > 0) {
+          sheet.getRange(row, 5).setValue('GOOGLEFINANCE');
+          sheet.getRange(row, 6).setValue(now);
+        } else {
+          const yahooPrice = fetchYahooQuote_(symbol + '.JK');
+          if (yahooPrice > 0) {
+            sheet.getRange(row, 8).setValue(yahooPrice);
+            sheet.getRange(row, 5).setValue('YAHOO_JSON');
+            sheet.getRange(row, 6).setValue(now);
+          }
+        }
+      } else if (assetType === 'GOLD') {
+        if (gold && gold.price > 0) {
+          sheet.getRange(row, 3).setValue(Math.round(gold.price));
+          sheet.getRange(row, 5).setValue(gold.source);
+          sheet.getRange(row, 6).setValue(now);
+        }
+      } else if (assetType === 'FR') {
+        const onlinePct = fetchFRPricePct_(symbol);
+        if (onlinePct > 0) {
+          sheet.getRange(row, 3).setValue(onlinePct);
+          sheet.getRange(row, 5).setValue('ONLINE_FR_FEED');
+          sheet.getRange(row, 6).setValue(now);
+        }
+        // Tanpa feed online: nilai manual di sheet dipertahankan apa adanya
+        // dan UpdatedAt TIDAK diubah agar tidak tampak lebih segar dari kenyataan.
+      }
+    }
+
+    SpreadsheetApp.flush();
+    return true;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function fetchYahooQuote_(yahooSymbol) {
+  try {
+    const url = 'https://query1.finance.yahoo.com/v8/finance/chart/' +
+      encodeURIComponent(yahooSymbol) + '?interval=1d&range=5d';
+    const response = UrlFetchApp.fetch(url, {
+      muteHttpExceptions: true,
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    });
+    if (response.getResponseCode() !== 200) return 0;
+
+    const json = JSON.parse(response.getContentText());
+    const result = json && json.chart && json.chart.result && json.chart.result[0];
+    if (!result) return 0;
+
+    const metaPrice = result.meta && result.meta.regularMarketPrice;
+    if (typeof metaPrice === 'number' && metaPrice > 0) return metaPrice;
+
+    const quote = result.indicators && result.indicators.quote && result.indicators.quote[0];
+    const closes = quote && quote.close;
+    if (Array.isArray(closes)) {
+      for (let i = closes.length - 1; i >= 0; i--) {
+        if (typeof closes[i] === 'number' && closes[i] > 0) return closes[i];
+      }
+    }
+    return 0;
+  } catch (err) {
+    return 0;
+  }
+}
+
+function fetchGoldPriceIDR_() {
+  if (GOLD_CONFIG.mode === 'CUSTOM_JSON_URL' && GOLD_CONFIG.customJsonUrl) {
+    try {
+      const res = UrlFetchApp.fetch(GOLD_CONFIG.customJsonUrl, {
+        muteHttpExceptions: true,
+        headers: { 'User-Agent': 'Mozilla/5.0' }
+      });
+      if (res.getResponseCode() === 200) {
+        const data = JSON.parse(res.getContentText());
+        const val = Number(data[GOLD_CONFIG.customJsonPath]);
+        if (val > 0) return { price: val, source: 'CUSTOM_JSON' };
+      }
+    } catch (err) { /* lanjut ke spot */ }
+  }
+
+  const TROY_OUNCE_TO_GRAM = 31.1034768;
+  let xauUsd = fetchYahooQuote_('XAUUSD=X');
+  if (!(xauUsd > 0)) xauUsd = fetchYahooQuote_('GC=F');
+  const usdIdr = fetchYahooQuote_('USDIDR=X');
+
+  if (xauUsd > 0 && usdIdr > 0) {
+    const spread = Number(GOLD_CONFIG.spreadMultiplier) || 1;
+    return { price: (xauUsd / TROY_OUNCE_TO_GRAM) * usdIdr * spread, source: 'YAHOO_SPOT_FX' };
+  }
+  return null;
+}
+
+function fetchFRPricePct_(seriesCode) {
+  if (!FR_CONFIG.endpointUrl) return 0;
+  try {
+    const series = String(seriesCode || '').trim().toUpperCase();
+    const sep = FR_CONFIG.endpointUrl.indexOf('?') === -1 ? '?' : '&';
+    const url = FR_CONFIG.endpointUrl + sep + 'series=' + encodeURIComponent(series);
+    const headers = { 'User-Agent': 'Mozilla/5.0' };
+    if (FR_CONFIG.apiKey) headers['Authorization'] = 'Bearer ' + FR_CONFIG.apiKey;
+
+    const res = UrlFetchApp.fetch(url, { muteHttpExceptions: true, headers: headers });
+    if (res.getResponseCode() !== 200) return 0;
+
+    const json = JSON.parse(res.getContentText());
+    if (typeof json.pricePct === 'number' && json.pricePct > 0) return json.pricePct;
+    if (typeof json.price === 'number' && json.price > 0) return json.price;
+    if (json.data && typeof json.data[series] === 'number' && json.data[series] > 0) return json.data[series];
+    if (typeof json[series] === 'number' && json[series] > 0) return json[series];
+    return 0;
+  } catch (err) {
+    return 0;
+  }
+}
+
+/* ===================== WEB APP ===================== */
+
+function json_(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function toIso_(v) {
+  if (v instanceof Date) return v.toISOString();
+  return v === null || v === undefined || v === '' ? null : String(v);
+}
+
+function toDateOnly_(v) {
+  if (v instanceof Date) {
+    return Utilities.formatDate(v, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  }
+  return String(v || '').slice(0, 10);
+}
+
+function isAuthorized_(e) {
+  if (!API_TOKEN) return true;
+  const token = e && e.parameter && e.parameter.token;
+  return token === API_TOKEN;
+}
+
+function doGet(e) {
+  if (!isAuthorized_(e)) return json_({ status: 'error', message: 'unauthorized' });
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const params = (e && e.parameter) || {};
+  let refreshed = false;
+
+  if (params.refresh === '1') {
+    const cache = CacheService.getScriptCache();
+    if (!cache.get('lastRefresh')) {
+      cache.put('lastRefresh', '1', REFRESH_MIN_GAP_SEC);
+      refreshed = syncMarketPrices() === true;
+    }
+  }
+
+  const pricesSheet = ss.getSheetByName(SHEET_NAMES.PRICES);
+  const profileSheet = ss.getSheetByName(SHEET_NAMES.PROFILE);
+  const tradesSheet = ss.getSheetByName(SHEET_NAMES.TRADES);
+
+  const prices = {};
+  let latestMs = 0;
+
+  if (pricesSheet && pricesSheet.getLastRow() >= 2) {
+    const rows = pricesSheet.getRange(2, 1, pricesSheet.getLastRow() - 1, 6).getValues();
+    rows.forEach((r) => {
+      const sym = String(r[1]).trim().toUpperCase();
+      if (!sym) return;
+      const updatedIso = toIso_(r[5]);
+      prices[sym] = {
+        assetType: String(r[0]).trim().toUpperCase(),
+        symbol: sym,
+        price: Number(r[2]) || 0,
+        unit: String(r[3] || ''),
+        source: String(r[4] || ''),
+        updatedAt: updatedIso
+      };
+      const ms = updatedIso ? Date.parse(updatedIso) : NaN;
+      if (!isNaN(ms) && ms > latestMs) latestMs = ms;
+    });
+  }
+
+  const profile = {};
+  if (profileSheet && profileSheet.getLastRow() >= 2) {
+    const pRows = profileSheet.getRange(2, 1, profileSheet.getLastRow() - 1, 2).getValues();
+    pRows.forEach((r) => {
+      if (!r[0]) return;
+      profile[String(r[0])] = r[1] instanceof Date ? r[1].toISOString() : r[1];
+    });
+  }
+
+  const trades = [];
+  if (tradesSheet && tradesSheet.getLastRow() >= 2) {
+    const tRows = tradesSheet.getRange(2, 1, tradesSheet.getLastRow() - 1, 10).getValues();
+    tRows.forEach((r) => {
+      trades.push({
+        id: String(r[0]),
+        date: toDateOnly_(r[1]),
+        action: r[2],
+        assetType: r[3],
+        tickerOrSeries: r[4],
+        quantity: Number(r[5]) || 0,
+        unit: r[6],
+        pricePerUnit: Number(r[7]) || 0,
+        totalIDR: Number(r[8]) || 0,
+        priceMode: r[9]
+      });
+    });
+  }
+
+  return json_({
+    status: 'ok',
+    refreshed: refreshed,
+    syncedAt: latestMs ? new Date(latestMs).toISOString() : new Date().toISOString(),
+    prices: prices,
+    profile: profile,
+    trades: trades
+  });
+}
+
+// Cegah sel dianggap formula bila teks diawali = + - @
+function cell_(v) {
+  const s = String(v === null || v === undefined ? '' : v);
+  return /^[=+\-@]/.test(s) ? "'" + s : s;
+}
+
+function doPost(e) {
+  if (!isAuthorized_(e)) return json_({ status: 'error', message: 'unauthorized' });
+
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(20000);
+    const body = JSON.parse(e.postData.contents);
+    ensureSheets_();
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    if (body.profile && typeof body.profile === 'object') {
+      const profileSheet = ss.getSheetByName(SHEET_NAMES.PROFILE);
+      const now = new Date();
+      const rows = [['Key', 'Value', 'UpdatedAt']];
+      PROFILE_KEYS.forEach((key) => {
+        if (body.profile[key] === undefined) return;
+        const v = body.profile[key];
+        const val = (v !== null && typeof v === 'object') ? JSON.stringify(v) : v;
+        rows.push([key, typeof val === 'string' ? cell_(val) : val, now]);
+      });
+      profileSheet.clear();
+      profileSheet.getRange(1, 1, rows.length, 3).setValues(rows);
+
+      const stocks = Array.isArray(body.profile.stocks) ? body.profile.stocks : [];
+      const bonds = Array.isArray(body.profile.bonds) ? body.profile.bonds : [];
+      ensureSymbolsInPricesSheet_(stocks.map((s) => s && s.ticker), bonds.map((b) => b && b.ticker));
+    }
+
+    if (body.trade && typeof body.trade === 'object') {
+      const tradesSheet = ss.getSheetByName(SHEET_NAMES.TRADES);
+      const t = body.trade;
+      const id = String(t.id || Utilities.getUuid());
+
+      let exists = false;
+      const last = tradesSheet.getLastRow();
+      if (last >= 2) {
+        const ids = tradesSheet.getRange(2, 1, last - 1, 1).getValues();
+        for (let i = 0; i < ids.length; i++) {
+          if (String(ids[i][0]) === id) { exists = true; break; }
+        }
+      }
+
+      if (!exists) {
+        tradesSheet.appendRow([
+          cell_(id),
+          '',
+          cell_(t.action),
+          cell_(t.assetType),
+          cell_(t.tickerOrSeries),
+          Number(t.quantity) || 0,
+          cell_(t.unit),
+          Number(t.pricePerUnit) || 0,
+          Number(t.totalIDR) || 0,
+          cell_(t.priceMode || 'MARKET')
+        ]);
+        const dateCell = tradesSheet.getRange(tradesSheet.getLastRow(), 2);
+        dateCell.setNumberFormat('@');
+        dateCell.setValue(String(t.date || '').slice(0, 10));
+
+        const type = String(t.assetType || '').toUpperCase();
+        if (type === 'STOCK') ensureSymbolsInPricesSheet_([t.tickerOrSeries], []);
+        if (type === 'FR') ensureSymbolsInPricesSheet_([], [t.tickerOrSeries]);
+      }
+    }
+
+    return json_({ status: 'ok' });
+  } catch (err) {
+    return json_({ status: 'error', message: String(err) });
+  } finally {
+    try { lock.releaseLock(); } catch (ignore) {}
+  }
+}
+
+// Menambah baris harga bagi ticker/seri baru. Validasi ketat karena
+// nilai ini masuk ke formula GOOGLEFINANCE dan endpoint bersifat publik.
+function ensureSymbolsInPricesSheet_(stockTickers, frSeries) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.PRICES);
+  if (!sheet) return;
+
+  const existing = {};
+  if (sheet.getLastRow() >= 2) {
+    sheet.getRange(2, 2, sheet.getLastRow() - 1, 1).getValues().forEach((r) => {
+      existing[String(r[0]).trim().toUpperCase()] = true;
+    });
+  }
+
+  const now = new Date();
+  let added = false;
+
+  (stockTickers || []).forEach((raw) => {
+    const ticker = String(raw || '').trim().toUpperCase();
+    if (!/^[A-Z0-9]{2,6}$/.test(ticker) || existing[ticker]) return;
+    appendStockRow_(sheet, ticker, now);
+    existing[ticker] = true;
+    added = true;
+  });
+
+  (frSeries || []).forEach((raw) => {
+    const code = String(raw || '').trim().toUpperCase();
+    if (!/^FR\d{4}$/.test(code) || existing[code]) return;
+    // Harga 0 = belum diisi; isi manual kolom Price (% par) atau sambungkan FR_CONFIG.
+    sheet.appendRow(['FR', code, 0, '% par', 'MANUAL_INPUT', now, '', '', 'Isi % par pasar sekunder di kolom Price']);
+    existing[code] = true;
+    added = true;
+  });
+
+  if (added) SpreadsheetApp.flush();
+}
+</script>
+    </div>
+  </div>
+
+  <!-- Modal Reset Confirmation -->
+  <div id="reset-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
+    <div class="modal-panel" style="max-width:440px;">
+      <h3 id="reset-modal-title" style="margin:0 0 8px; font-size:17px; font-weight:800; color:var(--text-primary);">
+        Reset Data Portofolio?
+      </h3>
+      <p style="margin:0 0 18px; font-size:13px; color:var(--text-secondary);">
+        Tindakan ini mengembalikan profil, instrumen awal, riwayat transaksi, dan snapshot ke data bawaan (demo). URL Google Apps Script dan harga terakhir tetap dipertahankan. Baris di sheet Trades tidak ikut terhapus.
+      </p>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button type="button" class="btn btn-ghost" onclick="closeResetModal()">Batal</button>
+        <button type="button" class="btn btn-rose" onclick="executeResetData()">Ya, Reset Data</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+'use strict';
+
+/* =====================================================================
+ * PortofolioPensiun PWA — logika aplikasi (v2)
+ * Struktur: Konstanta → Util → State → Harga & Sync → Hitungan → Render
+ *           → Beli/Jual → Profile → Backup → Tab/Modal/PWA → Init
+ * ===================================================================== */
+
+/* ==================== KONSTANTA ==================== */
+const STATE_STORAGE_KEY = 'portofolio_pensiun_dark_v1';
+const GAS_URL_STORAGE_KEY = 'portofolio_pensiun_gas_url_v1';
+const BOND_PAR_PER_LOT = 1000000;   // Rp 1.000.000 per lot FR
+const SHARES_PER_LOT = 100;         // 1 lot saham = 100 lembar
+const GOLD_SYMBOL = 'GOLD_IDR_GRAM';
+const DEFAULT_RETURN_PCT = 9.5;
+const AUTO_SYNC_MS = 60000;
+const READ_TIMEOUT_MS = 20000;
+const REFRESH_TIMEOUT_MS = 50000;
+const MANUAL_REFRESH_GAP_MS = 15000;
+const TOPUP_TYPES = ['ONCE', 'WEEKLY', 'MONTHLY', 'YEARLY'];
+const TOPUP_LABELS = { ONCE: 'Sekali', WEEKLY: 'Mingguan', MONTHLY: 'Bulanan', YEARLY: 'Tahunan' };
+const TX_CATEGORIES = ['STOCK', 'BOND', 'GOLD', 'CASH'];
+const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const DEFAULT_ALLOC = { stock: 35, bond: 30, gold: 25, cash: 10 };
+
+const DEFAULT_PRICES = {
+  BBCA: { assetType: 'STOCK', symbol: 'BBCA', price: 5650, unit: 'IDR/lembar', source: 'Cache/Fallback', updatedAt: null },
+  BMRI: { assetType: 'STOCK', symbol: 'BMRI', price: 4720, unit: 'IDR/lembar', source: 'Cache/Fallback', updatedAt: null },
+  BBRI: { assetType: 'STOCK', symbol: 'BBRI', price: 3890, unit: 'IDR/lembar', source: 'Cache/Fallback', updatedAt: null },
+  BBNI: { assetType: 'STOCK', symbol: 'BBNI', price: 4310, unit: 'IDR/lembar', source: 'Cache/Fallback', updatedAt: null },
+  TLKM: { assetType: 'STOCK', symbol: 'TLKM', price: 2740, unit: 'IDR/lembar', source: 'Cache/Fallback', updatedAt: null },
+  ASII: { assetType: 'STOCK', symbol: 'ASII', price: 4980, unit: 'IDR/lembar', source: 'Cache/Fallback', updatedAt: null },
+  FR0100: { assetType: 'FR', symbol: 'FR0100', price: 99.10, unit: '% par', source: 'Cache/Fallback', updatedAt: null },
+  FR0082: { assetType: 'FR', symbol: 'FR0082', price: 98.45, unit: '% par', source: 'Cache/Fallback', updatedAt: null },
+  FR0096: { assetType: 'FR', symbol: 'FR0096', price: 96.80, unit: '% par', source: 'Cache/Fallback', updatedAt: null },
+  [GOLD_SYMBOL]: { assetType: 'GOLD', symbol: GOLD_SYMBOL, price: 2185000, unit: 'IDR/gram', source: 'Cache/Fallback', updatedAt: null }
+};
+
+// Data bawaan (demo). Modal awal dibuat konsisten dengan total biaya perolehan instrumen awal:
+// cash 20 jt + emas 15 g × 1,8 jt + saham (100 lot × 100 × 4.700/4.000/3.300) + FR 40 lot × 960 rb = 205,4 jt.
+const SEED_STATE = {
+  schemaVersion: 2,
+  profile: {
+    targetRetirement: 3000000000,
+    initialFund: 205400000,
+    horizonYears: 15,
+    topupType: 'MONTHLY',
+    topupAmount: 3000000,
+    adviceDay: 25,
+    expectedReturnPct: DEFAULT_RETURN_PCT,
+    targetAlloc: { ...DEFAULT_ALLOC },
+    updatedAt: null
+  },
+  initialHoldings: {
+    cash: 20000000,
+    goldGram: 15,
+    goldAvgPrice: 1800000,
+    stocks: [
+      { ticker: 'BBCA', lots: 100, avgPrice: 4700 },
+      { ticker: 'BMRI', lots: 100, avgPrice: 4000 },
+      { ticker: 'BBRI', lots: 100, avgPrice: 3300 }
+    ],
+    bonds: [{ ticker: 'FR0100', lots: 40, avgPrice: 960000 }]
+  },
+  priceMap: JSON.parse(JSON.stringify(DEFAULT_PRICES)),
+  lastSyncAt: null,
+  lastSyncError: '',
+  syncStatus: 'LOCAL', // LOCAL | SYNCING | ONLINE | OFFLINE
+  transactions: [
+    {
+      id: 'tx-seed-1', date: '2026-10-25', type: 'BUY', category: 'GOLD', ticker: GOLD_SYMBOL,
+      qty: 2, price: 2150000, total: 4300000, fundingSource: 'EXTERNAL_TOPUP', priceMode: 'MARKET', createdAt: 1
+    }
+  ],
+  snapshots: [
+    { date: '2026-02-25', total: 196500000, stock: 121000000, bond: 39200000, gold: 21300000, cash: 15000000 },
+    { date: '2026-05-25', total: 204800000, stock: 125400000, bond: 39500000, gold: 22900000, cash: 17000000 },
+    { date: '2026-08-25', total: 214200000, stock: 130800000, bond: 39600000, gold: 25300000, cash: 18500000 }
+  ],
+  pending: { profile: null, trades: [] }
+};
+
+/* ==================== UTIL ==================== */
+const $ = (id) => document.getElementById(id);
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+
+function esc(value) {
+  return String(value === null || value === undefined ? '' : value).replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+function normTicker(value) {
+  return String(value || '').toUpperCase().replace(/[^A-Z0-9._-]/g, '').slice(0, 20);
+}
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+// Tanggal LOKAL (bukan UTC) agar tidak mundur sehari saat dini hari di WIB.
+function todayLocalISO(d = new Date()) {
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
+function toSafeNumber(val, fallback = 0) {
+  if (typeof val === 'number') return Number.isFinite(val) ? val : fallback;
+  if (typeof val !== 'string') return fallback;
+  let s = val.trim().replace(/[^0-9.,+-]/g, '');
+  if (!s) return fallback;
+  const hasDot = s.includes('.');
+  const hasComma = s.includes(',');
+  if (hasDot && hasComma) {
+    // Pemisah terakhir dianggap desimal: "1.234,56" (ID) atau "1,234.56" (EN)
+    s = s.lastIndexOf(',') > s.lastIndexOf('.') ? s.replace(/\./g, '').replace(',', '.') : s.replace(/,/g, '');
+  } else if (hasComma) {
+    s = (s.match(/,/g).length > 1) ? s.replace(/,/g, '') : s.replace(',', '.');
+  } else if (hasDot && s.match(/\./g).length > 1) {
+    s = s.replace(/\./g, '');
+  }
+  const n = Number(s);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function formatIdr(amount) {
+  const rounded = Math.round(toSafeNumber(amount, 0));
+  return (rounded < 0 ? '-Rp ' : 'Rp ') + Math.abs(rounded).toLocaleString('id-ID');
+}
+
+function formatQty(val, decimals = 2) {
+  return toSafeNumber(val, 0).toLocaleString('id-ID', { maximumFractionDigits: decimals });
+}
+
+function formatPct(val, decimals = 1) {
+  return toSafeNumber(val, 0).toLocaleString('id-ID', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + '%';
+}
+
+function showToast(msg, type = 'info') {
+  const stack = $('toast-stack');
+  if (!stack) return;
+  const div = document.createElement('div');
+  div.className = `toast-item ${type === 'ok' ? 'ok' : type === 'err' ? 'err' : ''}`;
+  const span = document.createElement('span');
+  span.textContent = msg;
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'toast-close';
+  close.setAttribute('aria-label', 'Tutup');
+  close.textContent = '✕';
+  close.addEventListener('click', () => div.remove());
+  div.append(span, close);
+  stack.appendChild(div);
+  setTimeout(() => div.remove(), type === 'err' ? 6000 : 3600);
+}
+
+/* ==================== STATE & STORAGE ==================== */
+function sanitizeHoldingRows(rows) {
+  return (Array.isArray(rows) ? rows : [])
+    .map((r) => ({
+      ticker: normTicker(r && r.ticker),
+      lots: Math.max(0, toSafeNumber(r && r.lots, 0)),
+      avgPrice: Math.max(0, toSafeNumber(r && r.avgPrice, 0))
+    }))
+    .filter((r) => r.ticker && r.lots > 0);
+}
+
+function sanitizeTransactions(list) {
+  const arr = Array.isArray(list) ? list : [];
+  const out = [];
+  arr.forEach((tx, idx) => {
+    if (!tx || typeof tx !== 'object') return;
+    const category = String(tx.category || '').toUpperCase();
+    const type = String(tx.type || '').toUpperCase();
+    const qty = toSafeNumber(tx.qty, 0);
+    if (!TX_CATEGORIES.includes(category) || !['BUY', 'SELL'].includes(type) || qty <= 0) return;
+    const dateStr = String(tx.date || '').slice(0, 10);
+    out.push({
+      id: String(tx.id || `tx-legacy-${idx}`),
+      date: /^\d{4}-\d{2}-\d{2}$/.test(dateStr) ? dateStr : todayLocalISO(),
+      type,
+      category,
+      ticker: category === 'GOLD' ? GOLD_SYMBOL : category === 'CASH' ? 'CASH' : normTicker(tx.ticker),
+      qty,
+      price: Math.max(0, toSafeNumber(tx.price, 0)),
+      total: Math.max(0, toSafeNumber(tx.total, 0)),
+      fundingSource: type === 'SELL' ? 'TO_CASH' : (tx.fundingSource === 'EXTERNAL_TOPUP' ? 'EXTERNAL_TOPUP' : 'CASH_BALANCE'),
+      priceMode: tx.priceMode === 'MANUAL' ? 'MANUAL' : 'MARKET',
+      // Urutan pembuatan: dipakai sebagai tie-breaker untuk transaksi di tanggal yang sama.
+      createdAt: Number.isFinite(Number(tx.createdAt)) ? Number(tx.createdAt) : arr.length - idx
+    });
+  });
+  return out;
+}
+
+function sanitizeSnapshots(list) {
+  return (Array.isArray(list) ? list : [])
+    .map((s) => ({
+      date: String((s && s.date) || '').slice(0, 10),
+      total: toSafeNumber(s && s.total, 0),
+      stock: toSafeNumber(s && s.stock, 0),
+      bond: toSafeNumber(s && s.bond, 0),
+      gold: toSafeNumber(s && s.gold, 0),
+      cash: toSafeNumber(s && s.cash, 0)
+    }))
+    .filter((s) => /^\d{4}-\d{2}-\d{2}$/.test(s.date))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function sanitizePriceMap(map) {
+  const out = clone(DEFAULT_PRICES);
+  Object.entries(map && typeof map === 'object' ? map : {}).forEach(([key, info]) => {
+    const sym = normTicker(key);
+    const price = info ? toSafeNumber(info.price, 0) : 0;
+    if (!sym || price <= 0) return;
+    out[sym] = {
+      assetType: String(info.assetType || (sym === GOLD_SYMBOL ? 'GOLD' : sym.startsWith('FR') ? 'FR' : 'STOCK')).toUpperCase(),
+      symbol: sym,
+      price,
+      unit: String(info.unit || ''),
+      source: String(info.source || 'SHEET_REFERENCE'),
+      updatedAt: info.updatedAt || null
+    };
+  });
+  return out;
+}
+
+function normalizeState(parsed, seed = clone(SEED_STATE)) {
+  const src = parsed && typeof parsed === 'object' ? parsed : {};
+  const sp = src.profile || {};
+  const sh = src.initialHoldings || {};
+
+  const alloc = { ...seed.profile.targetAlloc, ...(sp.targetAlloc || {}) };
+  Object.keys(DEFAULT_ALLOC).forEach((k) => { alloc[k] = clamp(toSafeNumber(alloc[k], DEFAULT_ALLOC[k]), 0, 100); });
+
+  const profile = {
+    targetRetirement: Math.max(0, toSafeNumber(sp.targetRetirement, seed.profile.targetRetirement)),
+    initialFund: Math.max(0, toSafeNumber(sp.initialFund, seed.profile.initialFund)),
+    horizonYears: clamp(Math.round(toSafeNumber(sp.horizonYears, seed.profile.horizonYears)), 1, 50),
+    topupType: TOPUP_TYPES.includes(sp.topupType) ? sp.topupType : 'MONTHLY',
+    topupAmount: Math.max(0, toSafeNumber(sp.topupAmount, seed.profile.topupAmount)),
+    adviceDay: clamp(Math.round(toSafeNumber(sp.adviceDay, seed.profile.adviceDay)), 1, 31),
+    expectedReturnPct: clamp(toSafeNumber(sp.expectedReturnPct, DEFAULT_RETURN_PCT), 0, 30),
+    targetAlloc: alloc,
+    updatedAt: typeof sp.updatedAt === 'string' ? sp.updatedAt : null
+  };
+
+  const initialHoldings = {
+    cash: Math.max(0, toSafeNumber(sh.cash, seed.initialHoldings.cash)),
+    goldGram: Math.max(0, toSafeNumber(sh.goldGram, seed.initialHoldings.goldGram)),
+    goldAvgPrice: Math.max(0, toSafeNumber(sh.goldAvgPrice, 0)),
+    stocks: sh.stocks !== undefined ? sanitizeHoldingRows(sh.stocks) : seed.initialHoldings.stocks,
+    bonds: sh.bonds !== undefined ? sanitizeHoldingRows(sh.bonds) : seed.initialHoldings.bonds
+  };
+
+  const pend = src.pending && typeof src.pending === 'object' ? src.pending : {};
+
+  return {
+    schemaVersion: 2,
+    profile,
+    initialHoldings,
+    priceMap: sanitizePriceMap(src.priceMap),
+    lastSyncAt: typeof src.lastSyncAt === 'string' ? src.lastSyncAt : null,
+    lastSyncError: '',
+    syncStatus: 'LOCAL', // status sync tidak boleh bertahan dari sesi sebelumnya
+    transactions: src.transactions !== undefined ? sanitizeTransactions(src.transactions) : seed.transactions,
+    snapshots: src.snapshots !== undefined ? sanitizeSnapshots(src.snapshots) : seed.snapshots,
+    pending: {
+      profile: pend.profile && typeof pend.profile === 'object' ? pend.profile : null,
+      trades: Array.isArray(pend.trades) ? pend.trades.filter((t) => t && t.id) : []
+    }
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STATE_STORAGE_KEY);
+    if (!raw) return clone(SEED_STATE);
+    return normalizeState(JSON.parse(raw));
+  } catch (e) {
+    return clone(SEED_STATE);
+  }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    showToast('Gagal menyimpan data ke browser (penyimpanan penuh/diblokir).', 'err');
+  }
+}
+
+let state = loadState();
+let tradeSide = 'BUY';
+let tradePriceMode = 'MARKET';
+let manualPriceOverride = null;
+let lastTradeCategory = 'STOCK';
+let deferredInstallPrompt = null;
+let syncInProgress = false;
+let rerunSync = null;
+let flushingPending = false;
+let autoSyncIntervalId = null;
+let profileDirty = false;
+let lastManualRefreshAt = 0;
+
+/* ==================== HARGA ==================== */
+function sourcePillClass(source) {
+  const s = String(source || '').toUpperCase();
+  if (['GOOGLEFINANCE', 'YAHOO_JSON', 'YAHOO_SPOT_FX', 'ONLINE_FR_FEED', 'CUSTOM_JSON'].includes(s)) return 'pill-emerald';
+  if (s === 'SHEET_REFERENCE' || s === 'MANUAL_INPUT') return 'pill-sky';
+  return 'pill-amber';
+}
+
+// Tidak ada lagi harga "karangan" untuk ticker tak dikenal: hasilnya missing=true.
+function resolvePrice(category, ticker) {
+  const sym = category === 'GOLD' ? GOLD_SYMBOL : normTicker(ticker);
+  const entry = sym && state.priceMap ? state.priceMap[sym] : null;
+  const numericPrice = entry ? toSafeNumber(entry.price, 0) : 0;
+
+  if (entry && numericPrice > 0) {
+    const src = entry.source || 'SHEET_REFERENCE';
+    if (category === 'BOND') {
+      const isPct = String(entry.unit || '').includes('%') || numericPrice <= 200;
+      return {
+        price: isPct ? Math.round((numericPrice / 100) * BOND_PAR_PER_LOT) : numericPrice,
+        pctPar: isPct ? numericPrice : (numericPrice / BOND_PAR_PER_LOT) * 100,
+        source: src, pillClass: sourcePillClass(src), missing: false
+      };
+    }
+    return { price: numericPrice, pctPar: null, source: src, pillClass: sourcePillClass(src), missing: false };
+  }
+  return { price: 0, pctPar: null, source: 'Belum ada harga', pillClass: 'pill-rose', missing: true };
+}
+
+/* ==================== SINKRONISASI (GOOGLE APPS SCRIPT) ==================== */
+function getGasUrl() {
+  try { return (localStorage.getItem(GAS_URL_STORAGE_KEY) || '').trim(); } catch (e) { return ''; }
+}
+
+function setGasUrl(value) {
+  try { localStorage.setItem(GAS_URL_STORAGE_KEY, value); } catch (e) { /* abaikan */ }
+}
+
+function isPlausibleGasUrl(value) {
+  try {
+    const u = new URL(value);
+    return u.protocol === 'https:';
+  } catch (e) {
+    return false;
+  }
+}
+
+function isUserEditingForm() {
+  const active = document.activeElement;
+  if (!active) return false;
+  const tag = active.tagName;
+  if (tag !== 'INPUT' && tag !== 'SELECT' && tag !== 'TEXTAREA') return false;
+  if (active.id === 'top-gas-url') return false;
+  return Boolean(active.closest('#view-profile') || active.closest('#view-trade'));
+}
+
+function handleGasUrlInput(rawValue) {
+  const clean = String(rawValue || '').trim();
+  const topInput = $('top-gas-url');
+  if (topInput && topInput.value !== clean) topInput.value = clean;
+  if (clean === getGasUrl()) return; // onchange + onblur memicu dua kali: abaikan duplikat
+
+  if (clean && !isPlausibleGasUrl(clean)) {
+    showToast('URL tidak valid. Gunakan alamat https://script.google.com/macros/s/.../exec', 'err');
+    return;
+  }
+  setGasUrl(clean);
+  state.syncStatus = clean ? 'SYNCING' : 'LOCAL';
+  updateSyncUi();
+  if (clean) runBackgroundSync({ refreshPrices: true, notify: true });
+}
+
+async function fetchWithTimeout(url, options = {}, ms = READ_TIMEOUT_MS) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  try {
+    return await fetch(url, { ...options, signal: ctrl.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function postToAppsScript(url, bodyObj) {
+  // no-cors: respons buram, tetapi permintaan terkirim & diproses Apps Script.
+  await fetchWithTimeout(url, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(bodyObj)
+  }, READ_TIMEOUT_MS);
+}
+
+function buildProfilePayload() {
+  return {
+    ...state.profile,
+    cash: state.initialHoldings.cash,
+    goldGram: state.initialHoldings.goldGram,
+    goldAvgPrice: state.initialHoldings.goldAvgPrice,
+    stocks: state.initialHoldings.stocks,
+    bonds: state.initialHoldings.bonds
+  };
+}
+
+// Antrean offline: data tidak hilang bila perangkat sedang offline / Apps Script gagal.
+function enqueuePush(body) {
+  if (!getGasUrl()) return;
+  if (body.profile) state.pending.profile = body.profile;
+  if (body.trade && !state.pending.trades.some((t) => t.id === body.trade.id)) state.pending.trades.push(body.trade);
+  saveState();
+}
+
+async function flushPending() {
+  const url = getGasUrl();
+  if (!url || !navigator.onLine || flushingPending) return true;
+  flushingPending = true;
+  try {
+    if (state.pending.profile) {
+      await postToAppsScript(url, { profile: state.pending.profile });
+      state.pending.profile = null;
+      saveState();
+    }
+    for (const trade of [...state.pending.trades]) {
+      await postToAppsScript(url, { trade });
+      state.pending.trades = state.pending.trades.filter((t) => t.id !== trade.id);
+      saveState();
+    }
+    return true;
+  } catch (e) {
+    return false;
+  } finally {
+    flushingPending = false;
+  }
+}
+
+function pushToAppsScript(body) {
+  enqueuePush(body);
+  updateSyncUi();
+  runBackgroundSync({ refreshPrices: true });
+}
+
+async function runBackgroundSync({ refreshPrices = false, notify = false } = {}) {
+  const url = getGasUrl();
+  if (!url) {
+    state.syncStatus = 'LOCAL';
+    updateSyncUi();
+    return false;
+  }
+  if (!navigator.onLine) {
+    state.syncStatus = 'OFFLINE';
+    state.lastSyncError = 'Perangkat offline';
+    updateSyncUi();
+    return false;
+  }
+  if (syncInProgress) {
+    rerunSync = { refreshPrices: Boolean(rerunSync && rerunSync.refreshPrices) || refreshPrices, notify: Boolean(rerunSync && rerunSync.notify) || notify };
+    return false;
+  }
+
+  syncInProgress = true;
+  state.syncStatus = 'SYNCING';
+  updateSyncUi();
+  let success = false;
+
+  try {
+    await flushPending(); // kirim antrean lebih dulu agar pull berikutnya melihat data terbaru
+
+    const endpoint = new URL(url);
+    if (refreshPrices) endpoint.searchParams.set('refresh', '1');
+    const res = await fetchWithTimeout(endpoint.toString(), { method: 'GET', cache: 'no-store' }, refreshPrices ? REFRESH_TIMEOUT_MS : READ_TIMEOUT_MS);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    let data;
+    try {
+      data = await res.json();
+    } catch (e) {
+      throw new Error('Respons bukan JSON (cek Deploy: Access harus "Anyone")');
+    }
+    if (!data || data.status !== 'ok') throw new Error((data && data.message) || 'Respons tidak valid');
+
+    if (data.prices && typeof data.prices === 'object') {
+      Object.entries(data.prices).forEach(([symKey, info]) => {
+        const sym = normTicker(symKey);
+        const val = info ? toSafeNumber(info.price, 0) : 0;
+        if (!sym || val <= 0) return;
+        state.priceMap[sym] = {
+          assetType: String(info.assetType || (sym === GOLD_SYMBOL ? 'GOLD' : sym.startsWith('FR') ? 'FR' : 'STOCK')).toUpperCase(),
+          symbol: sym,
+          price: val,
+          unit: String(info.unit || ''),
+          source: String(info.source || 'SHEET_REFERENCE'),
+          updatedAt: info.updatedAt || data.syncedAt || new Date().toISOString()
+        };
+      });
+    }
+
+    if (data.profile && typeof data.profile === 'object' && Object.keys(data.profile).length > 0) {
+      applyRemoteProfile(data.profile);
+    }
+
+    state.lastSyncAt = data.syncedAt || new Date().toISOString();
+    state.lastSyncError = '';
+    state.syncStatus = 'ONLINE';
+    success = true;
+    ensureMonthlySnapshot(computePortfolio(state));
+    saveState();
+    renderAll();
+    if (notify) showToast('Terhubung ke Google Spreadsheet.', 'ok');
+  } catch (err) {
+    state.syncStatus = 'OFFLINE';
+    state.lastSyncError = err && err.name === 'AbortError' ? 'Waktu habis (timeout)' : String((err && err.message) || err);
+    if (notify) showToast('Sinkronisasi gagal: ' + state.lastSyncError, 'err');
+  } finally {
+    syncInProgress = false;
+    updateSyncUi();
+    if (rerunSync) {
+      const next = rerunSync;
+      rerunSync = null;
+      setTimeout(() => runBackgroundSync(next), 300);
+    }
+  }
+  return success;
+}
+
+// Profil dari sheet hanya dipakai bila LEBIH BARU dari profil lokal.
+// Sebelumnya profil sheet menimpa data lokal di setiap sync (termasuk setelah Reset / edit yang belum terkirim).
+function applyRemoteProfile(remote) {
+  if (state.pending.profile) return;
+  const localTs = state.profile.updatedAt ? Date.parse(state.profile.updatedAt) : 0;
+  const remoteTs = remote.updatedAt ? Date.parse(remote.updatedAt) : 0;
+  if (remoteTs ? remoteTs <= localTs : localTs > 0) return;
+  if (profileDirty) return; // jangan menimpa draft yang sedang diedit
+
+  const parseJson = (v, fallback) => {
+    if (v === undefined || v === null || v === '') return fallback;
+    try { return typeof v === 'string' ? JSON.parse(v) : v; } catch (e) { return fallback; }
+  };
+
+  const merged = normalizeState({
+    profile: {
+      ...state.profile,
+      ...Object.fromEntries(['targetRetirement', 'initialFund', 'horizonYears', 'topupType', 'topupAmount', 'adviceDay', 'expectedReturnPct']
+        .filter((k) => remote[k] !== undefined && remote[k] !== '').map((k) => [k, remote[k]])),
+      targetAlloc: { ...state.profile.targetAlloc, ...(parseJson(remote.targetAlloc, {}) || {}) },
+      updatedAt: remoteTs ? new Date(remoteTs).toISOString() : state.profile.updatedAt
+    },
+    initialHoldings: {
+      cash: remote.cash !== undefined ? remote.cash : state.initialHoldings.cash,
+      goldGram: remote.goldGram !== undefined ? remote.goldGram : state.initialHoldings.goldGram,
+      goldAvgPrice: remote.goldAvgPrice !== undefined ? remote.goldAvgPrice : state.initialHoldings.goldAvgPrice,
+      stocks: parseJson(remote.stocks, state.initialHoldings.stocks),
+      bonds: parseJson(remote.bonds, state.initialHoldings.bonds)
+    }
+  });
+  state.profile = merged.profile;
+  state.initialHoldings = merged.initialHoldings;
+  refreshProfileFormIfSafe();
+}
+
+function manualRefreshPrices() {
+  if (!getGasUrl()) {
+    showToast('Isi URL Web App Google Apps Script terlebih dahulu.', 'err');
+    return;
+  }
+  const now = Date.now();
+  if (now - lastManualRefreshAt < MANUAL_REFRESH_GAP_MS) {
+    showToast('Harga baru saja diperbarui, coba lagi sebentar.', 'info');
+    return;
+  }
+  lastManualRefreshAt = now;
+  runBackgroundSync({ refreshPrices: true, notify: true });
+}
+
+function updateSyncUi() {
+  const url = getGasUrl();
+  const led = $('header-sync-led');
+  const timeStr = state.lastSyncAt
+    ? new Date(state.lastSyncAt).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'medium' })
+    : 'Belum ada';
+  const pendingCount = (state.pending.profile ? 1 : 0) + state.pending.trades.length;
+
+  let text;
+  let pill = { cls: 'pill-amber', label: 'Mode Lokal' };
+  led.className = 'status-led';
+
+  if (!url) {
+    text = 'Mode Lokal / Cache (URL belum diisi)';
+  } else if (state.syncStatus === 'SYNCING') {
+    text = 'Menyinkronkan...';
+    pill = { cls: 'pill-sky', label: 'Menyinkronkan' };
+    led.classList.add('syncing');
+  } else if (state.syncStatus === 'ONLINE') {
+    text = `Online • Auto-Sync Aktif (${timeStr})`;
+    pill = { cls: 'pill-emerald', label: 'Auto-Sync Aktif' };
+    led.classList.add('online');
+  } else if (state.syncStatus === 'OFFLINE') {
+    text = `Offline / Memakai Cache (${timeStr})${state.lastSyncError ? ' — ' + state.lastSyncError : ''}`;
+    pill = { cls: 'pill-rose', label: 'Offline' };
+  } else {
+    text = 'Menunggu sinkronisasi pertama...';
+  }
+  if (pendingCount > 0) text += ` • ${pendingCount} data menunggu terkirim`;
+
+  $('header-sync-label').textContent = text;
+  $('footer-sync-status').textContent = text;
+  const dashMeta = $('dash-price-sync-meta');
+  const tradeMeta = $('trade-feed-sync-meta');
+  const holdingsSub = $('holdings-table-sub');
+  const feedPill = $('feed-status-pill');
+  if (dashMeta) dashMeta.textContent = `Status: ${text}`;
+  if (tradeMeta) tradeMeta.textContent = `Status: ${text}`;
+  if (holdingsSub) holdingsSub.textContent = `Valuasi (saham per lot, FR % par per lot, emas per gram) • Update harga: ${timeStr}`;
+  if (feedPill) { feedPill.className = `pill ${pill.cls}`; feedPill.textContent = pill.label; }
+}
+
+/* ==================== HITUNGAN PORTOFOLIO ==================== */
+// Mereplay seluruh riwayat secara kronologis (tanggal, lalu urutan input).
+// Kejanggalan (jual melebihi kepemilikan, cash kurang) dicatat di `issues`, bukan disembunyikan.
+function computePortfolio(src = state) {
+  const init = src.initialHoldings || SEED_STATE.initialHoldings;
+  const prof = src.profile || SEED_STATE.profile;
+  const issues = [];
+  const missingPrices = [];
+  let realizedPnl = 0;
+
+  let cash = Math.max(0, toSafeNumber(init.cash, 0));
+  let goldGram = Math.max(0, toSafeNumber(init.goldGram, 0));
+  const goldNow = resolvePrice('GOLD', GOLD_SYMBOL);
+  const goldAvg0 = toSafeNumber(init.goldAvgPrice, 0) > 0 ? toSafeNumber(init.goldAvgPrice, 0) : goldNow.price;
+  let goldCost = goldGram * goldAvg0;
+
+  const stockMap = {};
+  (init.stocks || []).forEach((s) => {
+    const ticker = normTicker(s.ticker);
+    const lots = toSafeNumber(s.lots, 0);
+    if (!ticker || lots <= 0) return;
+    const avg = toSafeNumber(s.avgPrice, 0) > 0 ? toSafeNumber(s.avgPrice, 0) : resolvePrice('STOCK', ticker).price;
+    if (!stockMap[ticker]) stockMap[ticker] = { ticker, lots: 0, costBasis: 0 };
+    stockMap[ticker].lots += lots;
+    stockMap[ticker].costBasis += lots * SHARES_PER_LOT * avg;
+  });
+
+  const bondMap = {};
+  (init.bonds || []).forEach((b) => {
+    const ticker = normTicker(b.ticker);
+    const lots = toSafeNumber(b.lots, 0);
+    if (!ticker || lots <= 0) return;
+    const avg = toSafeNumber(b.avgPrice, 0) > 0 ? toSafeNumber(b.avgPrice, 0) : resolvePrice('BOND', ticker).price;
+    if (!bondMap[ticker]) bondMap[ticker] = { ticker, lots: 0, costBasis: 0 };
+    bondMap[ticker].lots += lots;
+    bondMap[ticker].costBasis += lots * avg;
+  });
+
+  let baselineCost = cash + goldCost;
+  Object.values(stockMap).forEach((s) => { baselineCost += s.costBasis; });
+  Object.values(bondMap).forEach((b) => { baselineCost += b.costBasis; });
+
+  // Modal bersih = dana awal yang dinyatakan pengguna (+ top-up luar − penarikan).
+  // Jika Dana Awal kosong, dipakai biaya perolehan instrumen awal.
+  const declaredFund = toSafeNumber(prof.initialFund, 0);
+  let netCapital = declaredFund > 0 ? declaredFund : baselineCost;
+
+  const ordered = [...(src.transactions || [])].sort((a, b) =>
+    String(a.date || '').localeCompare(String(b.date || '')) || (toSafeNumber(a.createdAt, 0) - toSafeNumber(b.createdAt, 0)));
+
+  const reduceLot = (map, tx, ticker, qty, total, label) => {
+    const pos = map[ticker];
+    const held = pos ? pos.lots : 0;
+    if (qty > held + 1e-9) {
+      issues.push({ key: `${tx.id}:oversell`, msg: `Jual ${label} ${ticker} (${formatQty(qty, 2)}) melebihi kepemilikan pada ${tx.date} (${formatQty(held, 2)}).` });
+    }
+    if (!pos || held <= 0) return;
+    const sold = Math.min(qty, held);
+    const avgPerLot = pos.costBasis / held;
+    const removedCost = sold * avgPerLot;
+    realizedPnl += (qty > 0 ? total * (sold / qty) : 0) - removedCost;
+    pos.lots = held - sold;
+    pos.costBasis = Math.max(0, pos.costBasis - removedCost);
+  };
+
+  ordered.forEach((tx) => {
+    const qty = toSafeNumber(tx.qty, 0);
+    const total = toSafeNumber(tx.total, 0);
+    const ticker = normTicker(tx.ticker);
+
+    if (tx.category === 'CASH') {
+      if (tx.type === 'BUY') {
+        cash += total;
+        netCapital += total;
+      } else {
+        if (total > cash + 1) issues.push({ key: `${tx.id}:cash`, msg: `Penarikan cash melebihi saldo pada ${tx.date}.` });
+        cash = Math.max(0, cash - total);
+        netCapital = Math.max(0, netCapital - total);
+      }
+      return;
+    }
+
+    if (tx.type === 'BUY') {
+      if (tx.fundingSource === 'CASH_BALANCE') {
+        if (total > cash + 1) {
+          issues.push({ key: `${tx.id}:funding`, msg: `Saldo Cash tidak cukup pada ${tx.date} (kurang ${formatIdr(total - cash)}). Pilih "Top-up Dana Baru dari Luar".` });
+          netCapital += total - cash; // kekurangan dianggap setoran baru agar angka tetap konsisten
+          cash = 0;
+        } else {
+          cash -= total;
+        }
+      } else {
+        netCapital += total;
+      }
+
+      if (tx.category === 'STOCK') {
+        if (!stockMap[ticker]) stockMap[ticker] = { ticker, lots: 0, costBasis: 0 };
+        stockMap[ticker].lots += qty;
+        stockMap[ticker].costBasis += total;
+      } else if (tx.category === 'BOND') {
+        if (!bondMap[ticker]) bondMap[ticker] = { ticker, lots: 0, costBasis: 0 };
+        bondMap[ticker].lots += qty;
+        bondMap[ticker].costBasis += total;
+      } else if (tx.category === 'GOLD') {
+        goldGram += qty;
+        goldCost += total;
+      }
+    } else {
+      cash += total;
+      if (tx.category === 'STOCK') {
+        reduceLot(stockMap, tx, ticker, qty, total, 'saham');
+      } else if (tx.category === 'BOND') {
+        reduceLot(bondMap, tx, ticker, qty, total, 'FR');
+      } else if (tx.category === 'GOLD') {
+        if (qty > goldGram + 1e-9) issues.push({ key: `${tx.id}:oversell`, msg: `Jual emas (${formatQty(qty, 2)} gr) melebihi saldo pada ${tx.date} (${formatQty(goldGram, 2)} gr).` });
+        if (goldGram > 0) {
+          const sold = Math.min(qty, goldGram);
+          const avg = goldCost / goldGram;
+          realizedPnl += (qty > 0 ? total * (sold / qty) : 0) - sold * avg;
+          goldGram -= sold;
+          goldCost = Math.max(0, goldCost - sold * avg);
+        }
+      }
+    }
+  });
+
+  let stockValue = 0;
+  const stocks = Object.values(stockMap).filter((s) => s.lots > 0).map((s) => {
+    const p = resolvePrice('STOCK', s.ticker);
+    const avgPrice = s.costBasis / (s.lots * SHARES_PER_LOT);
+    // Tanpa harga pasar, nilai ditahan di biaya perolehan (bukan harga karangan).
+    const marketPrice = p.missing ? avgPrice : p.price;
+    if (p.missing) missingPrices.push(s.ticker);
+    const marketValue = s.lots * SHARES_PER_LOT * marketPrice;
+    stockValue += marketValue;
+    return { ...s, avgPrice, marketPrice, source: p.source, pillClass: p.pillClass, marketValue, pnl: marketValue - s.costBasis };
+  });
+
+  let bondValue = 0;
+  const bonds = Object.values(bondMap).filter((b) => b.lots > 0).map((b) => {
+    const p = resolvePrice('BOND', b.ticker);
+    const avgPrice = b.costBasis / b.lots;
+    const marketPrice = p.missing ? avgPrice : p.price;
+    if (p.missing) missingPrices.push(b.ticker);
+    const marketValue = b.lots * marketPrice;
+    bondValue += marketValue;
+    return {
+      ...b, avgPrice, marketPrice, pctPar: p.missing ? (avgPrice / BOND_PAR_PER_LOT) * 100 : p.pctPar,
+      source: p.source, pillClass: p.pillClass, marketValue, pnl: marketValue - b.costBasis
+    };
+  });
+
+  const goldAvgPrice = goldGram > 0 ? goldCost / goldGram : goldNow.price;
+  const goldMarketPrice = goldNow.missing ? goldAvgPrice : goldNow.price;
+  if (goldNow.missing && goldGram > 0) missingPrices.push(GOLD_SYMBOL);
+  const goldValue = goldGram * goldMarketPrice;
+  const goldPnl = goldValue - goldCost;
+
+  const totalAsset = stockValue + bondValue + goldValue + cash;
+  const growthNominal = totalAsset - netCapital;
+  const pctOf = (v) => (totalAsset > 0 ? (v / totalAsset) * 100 : 0);
+
+  return {
+    cash, goldGram, goldAvgPrice, goldMarketPrice,
+    goldSource: goldNow.source, goldPillClass: goldNow.pillClass, goldValue, goldPnl,
+    stocks, stockValue, bonds, bondValue,
+    totalAsset, netCapital, growthNominal,
+    growthPct: netCapital > 0 ? (growthNominal / netCapital) * 100 : 0,
+    realizedPnl,
+    unrealizedPnl: stocks.reduce((a, s) => a + s.pnl, 0) + bonds.reduce((a, b) => a + b.pnl, 0) + goldPnl,
+    baselineCost,
+    issues,
+    missingPrices,
+    pct: { stock: pctOf(stockValue), bond: pctOf(bondValue), gold: pctOf(goldValue), cash: pctOf(cash) }
+  };
+}
+
+// Jendela 3 hari berbasis tanggal kalender nyata: bisa melewati pergantian bulan,
+// dan bulan pendek memakai hari terakhir bulan itu.
+function getThreeDayWindow(routineDay, referenceDate = new Date()) {
+  const day = clamp(Math.round(toSafeNumber(routineDay, 25)), 1, 31);
+  const today = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate());
+  const startFor = (y, m) => new Date(y, m, Math.min(day, new Date(y, m + 1, 0).getDate()));
+  const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+
+  let current = null;
+  let next = null;
+  for (let off = -1; off <= 2; off++) {
+    const start = startFor(today.getFullYear(), today.getMonth() + off);
+    const end = addDays(start, 2);
+    if (today >= start && today <= end && !current) current = { start, end };
+    if (!next && start > today) next = { start, end };
+  }
+  const shown = current || next;
+  const dayIndex = current ? Math.round((today - current.start) / 86400000) + 1 : 0;
+
+  return {
+    routineDay: day,
+    today,
+    isOpen: Boolean(current),
+    dayIndex,
+    current,
+    next,
+    rangeLabel: formatWindowRange(shown.start, shown.end),
+    nextDateFormatted: next.start.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+  };
+}
+
+function formatWindowRange(s, e) {
+  return s.getMonth() === e.getMonth()
+    ? `${s.getDate()}–${e.getDate()} ${MONTHS_SHORT[s.getMonth()]}`
+    : `${s.getDate()} ${MONTHS_SHORT[s.getMonth()]}–${e.getDate()} ${MONTHS_SHORT[e.getMonth()]}`;
+}
+
+function periodsPerYear(type) {
+  return type === 'WEEKLY' ? 52 : type === 'MONTHLY' ? 12 : type === 'YEARLY' ? 1 : 0;
+}
+
+function computeAnnualTopup(prof) {
+  return toSafeNumber(prof.topupAmount, 0) * periodsPerYear(prof.topupType);
+}
+
+// Nilai akhir 1 satuan setoran per periode dengan bunga majemuk per periode setara tahunan.
+function annuityFactor(perYear, years, annualRate) {
+  if (perYear <= 0) return 0;
+  const n = perYear * years;
+  if (annualRate <= 0) return n;
+  const i = Math.pow(1 + annualRate, 1 / perYear) - 1;
+  return (Math.pow(1 + i, n) - 1) / i;
+}
+
+function computeProjection(currentTotal, prof) {
+  const years = clamp(Math.round(toSafeNumber(prof.horizonYears, 15)), 1, 50);
+  const ratePct = clamp(toSafeNumber(prof.expectedReturnPct, DEFAULT_RETURN_PCT), 0, 30);
+  const rate = ratePct / 100;
+  const amt = toSafeNumber(prof.topupAmount, 0);
+  const once = prof.topupType === 'ONCE' ? amt : 0;
+  const fvCurrent = (currentTotal + once) * Math.pow(1 + rate, years);
+  const fvRecurring = amt * annuityFactor(periodsPerYear(prof.topupType), years, rate);
+  const projectedFv = fvCurrent + fvRecurring;
+  const target = Math.max(0, toSafeNumber(prof.targetRetirement, 0));
+  const deficit = Math.max(0, target - projectedFv);
+  const monthlyFactor = annuityFactor(12, years, rate);
+  return {
+    years, ratePct, rate, target, projectedFv, deficit,
+    annualTopup: computeAnnualTopup(prof),
+    isOnTrack: projectedFv >= target,
+    extraMonthly: monthlyFactor > 0 ? deficit / monthlyFactor : 0
+  };
+}
+
+// Snapshot otomatis: sekali per bulan, hanya bila harga lengkap & sedang online.
+function ensureMonthlySnapshot(p) {
+  if (state.syncStatus !== 'ONLINE' || p.totalAsset <= 0 || p.missingPrices.length) return;
+  const today = todayLocalISO();
+  const month = today.slice(0, 7);
+  if (state.snapshots.some((s) => s.date.slice(0, 7) === month)) return;
+  state.snapshots.push({
+    date: today, total: p.totalAsset, stock: p.stockValue, bond: p.bondValue, gold: p.goldValue, cash: p.cash
+  });
+  state.snapshots.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/* ==================== RENDER: DASHBOARD ==================== */
+function renderDashboard() {
+  const prof = state.profile;
+  const p = computePortfolio(state);
+  const proj = computeProjection(p.totalAsset, prof);
+  const pctTarget = proj.target > 0 ? Math.min(100, (p.totalAsset / proj.target) * 100) : 0;
+
+  $('fc-total-asset').textContent = formatIdr(p.totalAsset);
+  $('fc-target-sub').textContent = `Target: ${formatIdr(proj.target)} (${pctTarget.toFixed(1)}%)`;
+  $('fc-target-bar').style.width = `${pctTarget.toFixed(1)}%`;
+  $('fc-net-capital').textContent = formatIdr(p.netCapital);
+
+  $('fc-portions-main').textContent = `${p.pct.stock.toFixed(0)} / ${p.pct.bond.toFixed(0)} / ${p.pct.gold.toFixed(0)} / ${p.pct.cash.toFixed(0)}`;
+  $('fc-portions-detail').textContent = `Saham ${p.pct.stock.toFixed(1)}% • FR ${p.pct.bond.toFixed(1)}% • Emas ${p.pct.gold.toFixed(1)}% • Cash ${p.pct.cash.toFixed(1)}%`;
+  $('fc-cash-val').textContent = `${formatIdr(p.cash)} (${p.pct.cash.toFixed(1)}%)`;
+
+  const growthEl = $('fc-growth-val');
+  growthEl.textContent = (p.growthNominal >= 0 ? '+' : '') + formatIdr(p.growthNominal);
+  growthEl.style.color = p.growthNominal >= 0 ? '#6ee7b7' : '#fda4af';
+  $('fc-growth-pct').textContent = `${p.growthPct >= 0 ? '+' : ''}${p.growthPct.toFixed(2)}% dari modal bersih`;
+  $('fc-gold-grams').textContent = `${formatQty(p.goldGram, 2)} gr`;
+
+  $('fc-projected-val').textContent = formatIdr(proj.projectedFv);
+  const topupTxt = prof.topupAmount > 0 ? `Top-up ${TOPUP_LABELS[prof.topupType] || 'Bulanan'}` : 'Tanpa top-up';
+  $('fc-projected-meta').textContent = `${proj.years} thn • ${topupTxt} • Asumsi ${formatPct(proj.ratePct)}/thn (nominal)`;
+
+  const badge = $('fc-ontrack-pill');
+  badge.textContent = proj.isOnTrack ? 'ON TRACK' : 'PERLU TOP-UP';
+  badge.className = `pill ${proj.isOnTrack ? 'pill-emerald' : 'pill-amber'}`;
+
+  const win = getThreeDayWindow(prof.adviceDay, new Date());
+  $('fc-window-tag').textContent = `${win.isOpen ? 'Aktif ' : 'Berikutnya '}${win.rangeLabel}`;
+
+  renderIssuesBanner(p);
+  renderPieChart(p);
+  renderGrowthChart(p);
+  renderAiSchedule(p, proj, prof, win);
+  renderPriceTiles();
+  renderHoldingsTable(p);
+  updateSyncUi();
+}
+
+function renderIssuesBanner(p) {
+  const box = $('issues-banner');
+  const notes = [];
+  if (p.issues.length) notes.push(`Ada ${p.issues.length} transaksi yang tidak konsisten (mis. jual melebihi kepemilikan). ${esc(p.issues[0].msg)}`);
+  if (p.missingPrices.length) notes.push(`Harga pasar belum tersedia untuk ${esc(p.missingPrices.join(', '))}; nilainya sementara memakai harga rata-rata. Sambungkan Google Sheets atau pastikan ticker ada di sheet Prices.`);
+  box.classList.toggle('hidden', notes.length === 0);
+  box.innerHTML = notes.map((n) => `<div>⚠ ${n}</div>`).join('');
+}
+
+function renderPieChart(p) {
+  const canvas = $('pie-chart-canvas');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const size = 184;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width = `${size}px`;
+  canvas.style.height = `${size}px`;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, size, size);
+
+  $('pie-total-pill').textContent = formatIdr(p.totalAsset);
+
+  const slices = [
+    { label: 'Saham', value: p.stockValue, pct: p.pct.stock, color: '#38bdf8' },
+    { label: 'Obligasi FR', value: p.bondValue, pct: p.pct.bond, color: '#10b981' },
+    { label: 'Emas', value: p.goldValue, pct: p.pct.gold, color: '#f59e0b' },
+    { label: 'Cash', value: p.cash, pct: p.pct.cash, color: '#818cf8' }
+  ];
+
+  const total = slices.reduce((acc, s) => acc + s.value, 0);
+  const cx = size / 2;
+  const cy = size / 2;
+  const outerR = 76;
+  const innerR = 46;
+
+  if (total <= 0) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, (outerR + innerR) / 2, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+    ctx.lineWidth = outerR - innerR;
+    ctx.stroke();
+  } else {
+    let startAngle = -Math.PI / 2;
+    slices.forEach((s) => {
+      const sweep = (s.value / total) * Math.PI * 2;
+      if (sweep <= 0) return;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, outerR, startAngle, startAngle + sweep);
+      ctx.closePath();
+      ctx.fillStyle = s.color;
+      ctx.fill();
+      startAngle += sweep;
+    });
+    ctx.beginPath();
+    ctx.arc(cx, cy, innerR, 0, Math.PI * 2);
+    ctx.fillStyle = '#131c2e';
+    ctx.fill();
+  }
+
+  $('pie-legend-list').innerHTML = slices.map((s) => `
+    <div class="legend-item">
+      <span><span class="legend-swatch" style="background:${s.color};"></span><strong>${s.label}</strong> (${s.pct.toFixed(1)}%)</span>
+      <span class="legend-value">${formatIdr(s.value)}</span>
+    </div>
+  `).join('');
+}
+
+function shortDateLabel(iso) {
+  const m = /^(\d{4})-(\d{2})-\d{2}$/.exec(String(iso || ''));
+  return m ? `${MONTHS_SHORT[Number(m[2]) - 1]} ${m[1].slice(2)}` : String(iso || '');
+}
+
+function renderGrowthChart(portfolioData = null) {
+  const p = portfolioData || computePortfolio(state);
+  const canvas = $('growth-chart-canvas');
+  const ctx = canvas.getContext('2d');
+  const parentWidth = canvas.parentElement ? canvas.parentElement.clientWidth - 36 : 640;
+  const width = Math.max(280, parentWidth);
+  const height = 220;
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+
+  const checked = Array.from(document.querySelectorAll('.growth-filter:checked')).map((el) => el.value);
+  const seriesDefs = [
+    { key: 'all', color: '#38bdf8', getVal: (pt) => pt.total },
+    { key: 'stock', color: '#818cf8', getVal: (pt) => pt.stock },
+    { key: 'bond', color: '#10b981', getVal: (pt) => pt.bond },
+    { key: 'gold', color: '#f59e0b', getVal: (pt) => pt.gold },
+    { key: 'cash', color: '#f472b6', getVal: (pt) => pt.cash }
+  ].filter((sd) => checked.includes(sd.key));
+
+  const points = [
+    ...(state.snapshots || []).map((s) => ({ ...s, label: shortDateLabel(s.date) })),
+    { label: 'Saat Ini', total: p.totalAsset, stock: p.stockValue, bond: p.bondValue, gold: p.goldValue, cash: p.cash }
+  ];
+
+  const pad = { top: 14, right: 22, bottom: 28, left: 70 };
+  const plotW = Math.max(40, width - pad.left - pad.right);
+  const plotH = Math.max(40, height - pad.top - pad.bottom);
+  const xAt = (idx) => (points.length === 1 ? pad.left + plotW / 2 : pad.left + (plotW * idx) / (points.length - 1));
+
+  let maxVal = 1000000;
+  points.forEach((pt) => seriesDefs.forEach((sd) => { maxVal = Math.max(maxVal, toSafeNumber(sd.getVal(pt), 0)); }));
+  maxVal *= 1.12;
+
+  ctx.strokeStyle = 'rgba(148, 163, 184, 0.14)';
+  ctx.lineWidth = 1;
+  ctx.font = '11px Inter, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#94a3b8';
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (plotH * i) / 4;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(pad.left + plotW, y);
+    ctx.stroke();
+    const tickVal = maxVal * (1 - i / 4);
+    const label = tickVal >= 1e9
+      ? `Rp ${(tickVal / 1e9).toLocaleString('id-ID', { maximumFractionDigits: 1 })} M`
+      : `Rp ${Math.round(tickVal / 1e6).toLocaleString('id-ID')} jt`;
+    ctx.fillText(label, 4, y + 4);
+  }
+
+  // Label sumbu-X: tengah di bawah titik, dijarangkan bila terlalu rapat.
+  const minGap = 56;
+  const step = Math.max(1, Math.ceil(minGap / Math.max(1, plotW / Math.max(1, points.length - 1))));
+  ctx.textAlign = 'center';
+  points.forEach((pt, idx) => {
+    if (idx % step !== 0 && idx !== points.length - 1) return;
+    const x = clamp(xAt(idx), 24, width - 24);
+    ctx.fillText(pt.label, x, height - 8);
+  });
+  ctx.textAlign = 'left';
+
+  if (!seriesDefs.length) {
+    ctx.fillText('Centang minimal satu aset untuk menampilkan grafik.', pad.left + 12, pad.top + 24);
+    return;
+  }
+
+  seriesDefs.forEach((sd) => {
+    const yAt = (pt) => pad.top + plotH - (toSafeNumber(sd.getVal(pt), 0) / maxVal) * plotH;
+    ctx.beginPath();
+    ctx.strokeStyle = sd.color;
+    ctx.lineWidth = 2.5;
+    points.forEach((pt, idx) => { if (idx === 0) ctx.moveTo(xAt(idx), yAt(pt)); else ctx.lineTo(xAt(idx), yAt(pt)); });
+    ctx.stroke();
+    points.forEach((pt, idx) => {
+      ctx.beginPath();
+      ctx.arc(xAt(idx), yAt(pt), 4, 0, Math.PI * 2);
+      ctx.fillStyle = sd.color;
+      ctx.fill();
+    });
+  });
+}
+
+function renderAiSchedule(p, proj, prof, win) {
+  const summaryEl = $('ai-window-summary');
+  const badgeEl = $('ai-window-badge');
+  const activeBox = $('ai-active-content');
+  const emptyBox = $('ai-empty-content');
+  const simMode = Boolean($('chk-sim-window') && $('chk-sim-window').checked);
+  const todayTxt = `${win.today.getDate()} ${MONTHS_SHORT[win.today.getMonth()]}`;
+
+  summaryEl.textContent = `Tanggal rutin: ${win.routineDay} • Jendela: ${win.rangeLabel} (3 hari) • Hari ini: ${todayTxt}`;
+
+  if (!win.isOpen && !simMode) {
+    badgeEl.textContent = 'KOSONG (DI LUAR JENDELA)';
+    badgeEl.className = 'pill pill-slate';
+    activeBox.classList.add('hidden');
+    emptyBox.classList.remove('hidden');
+    $('ai-empty-reason').textContent = `Hari ini (${todayTxt}) di luar jendela 3 hari. Saran AI sengaja dikosongkan dan muncul kembali pada ${win.nextDateFormatted}.`;
+    return;
+  }
+
+  badgeEl.textContent = win.isOpen ? `AKTIF (HARI ${win.dayIndex} / 3)` : `SIMULASI ${win.rangeLabel}`;
+  badgeEl.className = 'pill pill-emerald';
+  activeBox.classList.remove('hidden');
+  emptyBox.classList.add('hidden');
+
+  if (proj.isOnTrack) {
+    $('ai-ontrack-body').innerHTML = `
+      <p>Portofolio berada pada jalur <strong>ON TRACK</strong> menuju <strong>${formatIdr(proj.target)}</strong> dalam <strong>${proj.years} tahun</strong> (proyeksi <strong>${formatIdr(proj.projectedFv)}</strong>, asumsi ${formatPct(proj.ratePct)}/thn).</p>
+      <p class="tone-ok">${proj.annualTopup > 0 ? `Lanjutkan top-up terjadwal (setara ${formatIdr(proj.annualTopup)}/tahun) selama jendela ini.` : 'Tidak ada top-up terjadwal; hasil bergantung pada imbal hasil aset.'}</p>`;
+  } else {
+    $('ai-ontrack-body').innerHTML = `
+      <p>Proyeksi <strong>${formatIdr(proj.projectedFv)}</strong> masih kurang <strong>${formatIdr(proj.deficit)}</strong> dari target.</p>
+      <p class="tone-warn">Tambahan top-up sekitar <strong>${formatIdr(proj.extraMonthly)}/bulan</strong> (di atas rencana saat ini) menutup selisih tersebut pada asumsi ${formatPct(proj.ratePct)}/thn. Alternatif: perpanjang horizon atau turunkan target.</p>`;
+  }
+
+  const rawAlloc = prof.targetAlloc || DEFAULT_ALLOC;
+  const allocSum = ['stock', 'bond', 'gold', 'cash'].reduce((a, k) => a + toSafeNumber(rawAlloc[k], 0), 0);
+  const goalOf = (k) => (allocSum > 0 ? (toSafeNumber(rawAlloc[k], 0) / allocSum) * 100 : 0);
+  const rows = [
+    { name: 'Saham', curPct: p.pct.stock, curVal: p.stockValue, goalPct: goalOf('stock') },
+    { name: 'Obligasi FR', curPct: p.pct.bond, curVal: p.bondValue, goalPct: goalOf('bond') },
+    { name: 'Emas', curPct: p.pct.gold, curVal: p.goldValue, goalPct: goalOf('gold') },
+    { name: 'Cash', curPct: p.pct.cash, curVal: p.cash, goalPct: goalOf('cash') }
+  ].map((r) => {
+    const diff = (r.goalPct / 100) * p.totalAsset - r.curVal;
+    return { ...r, diff, off: Math.abs(r.curPct - r.goalPct) >= 5 };
+  });
+
+  let rebalanceHtml = rows.map((r) => {
+    const status = !r.off
+      ? '<span class="tone-muted">Sesuai target</span>'
+      : r.diff > 0
+        ? `<span class="tone-ok strong">Tambah +${formatIdr(r.diff)}</span>`
+        : `<span class="tone-bad strong">Pangkas ${formatIdr(Math.abs(r.diff))}</span>`;
+    return `<div class="ai-row"><span>${r.name} (${r.curPct.toFixed(1)}% / ${r.goalPct.toFixed(0)}%)</span><span>${status}</span></div>`;
+  }).join('');
+
+  if (Math.abs(allocSum - 100) > 0.01) {
+    rebalanceHtml += `<p class="tone-warn small">Total target alokasi ${allocSum.toFixed(0)}% (bukan 100%); dinormalisasi otomatis. Perbaiki di Tab Profile.</p>`;
+  }
+
+  const under = rows.filter((r) => r.off && r.diff > 0);
+  const underSum = under.reduce((a, r) => a + r.diff, 0);
+  if (prof.topupAmount > 0 && underSum > 0) {
+    const split = under.map((r) => `${r.name} ${formatIdr(prof.topupAmount * (r.diff / underSum))}`).join(' • ');
+    rebalanceHtml += `<p class="small">Arahkan top-up berikutnya (${formatIdr(prof.topupAmount)}) ke aset yang kurang: ${split}. Cara ini menyeimbangkan tanpa menjual aset.</p>`;
+  }
+  $('ai-rebalance-body').innerHTML = rebalanceHtml;
+
+  $('ai-extra-body').innerHTML = `
+    <p>• ${p.pct.cash < 5 ? 'Porsi Cash di bawah 5%: siapkan kas cadangan agar tidak terpaksa menjual aset saat pasar koreksi.' : 'Porsi Cash terjaga sebagai penyangga likuiditas jangka pendek.'}</p>
+    <p>• Kombinasi Saham Big Bank (dividen &amp; pertumbuhan), Obligasi FR (kupon tetap), dan Emas (lindung nilai) membantu meredam gejolak suku bunga &amp; inflasi.</p>
+    <p>• Proyeksi bersifat nominal (belum memperhitungkan inflasi, pajak, biaya transaksi, atau kupon FR) dan memakai satu asumsi imbal hasil tetap.</p>
+    <p>• Setelah jendela berakhir, saran AI kembali kosong sampai ${win.nextDateFormatted}.</p>`;
+}
+
+function renderPriceTiles() {
+  const order = { STOCK: 0, FR: 1, GOLD: 2 };
+  const entries = Object.values(state.priceMap || {}).sort((a, b) =>
+    (order[String(a.assetType).toUpperCase()] ?? 9) - (order[String(b.assetType).toUpperCase()] ?? 9) || String(a.symbol).localeCompare(String(b.symbol)));
+
+  const html = entries.map((item) => {
+    const valNum = toSafeNumber(item.price, 0);
+    const isFr = String(item.assetType || '').toUpperCase() === 'FR' || String(item.unit || '').includes('%');
+    const displayPrice = isFr ? `${valNum.toFixed(2)}% par` : formatIdr(valNum);
+    return `
+      <div class="price-tile">
+        <div>
+          <div class="tile-symbol">${esc(item.symbol)}</div>
+          <div class="tile-price">${esc(displayPrice)} <span class="tone-muted">(${esc(item.unit || '')})</span></div>
+        </div>
+        <span class="pill ${sourcePillClass(item.source)}">${esc(item.source || 'Cache/Fallback')}</span>
+      </div>`;
+  }).join('');
+
+  const dashContainer = $('dash-price-tiles');
+  const tradeContainer = $('trade-price-tiles');
+  if (dashContainer) dashContainer.innerHTML = html;
+  if (tradeContainer) tradeContainer.innerHTML = html;
+}
+
+function pnlCell(value) {
+  const pos = value >= 0;
+  return `<td class="num-right strong ${pos ? 'tone-ok' : 'tone-bad'}">${pos ? '+' : ''}${formatIdr(value)}</td>`;
+}
+
+function renderHoldingsTable(p) {
+  const rows = [];
+
+  p.stocks.forEach((s) => rows.push(`
+    <tr>
+      <td><span class="pill pill-sky">Saham</span></td>
+      <td><strong>${esc(s.ticker)}</strong></td>
+      <td class="num-right">${formatQty(s.lots, 0)} Lot (${formatQty(s.lots * SHARES_PER_LOT, 0)} lbr)</td>
+      <td class="num-right">${formatIdr(s.avgPrice)}/lbr</td>
+      <td class="num-right"><strong>${formatIdr(s.marketPrice)}</strong>/lbr</td>
+      <td><span class="pill ${s.pillClass}">${esc(s.source)}</span></td>
+      <td class="num-right"><strong>${formatIdr(s.marketValue)}</strong></td>
+      ${pnlCell(s.pnl)}
+    </tr>`));
+
+  p.bonds.forEach((b) => rows.push(`
+    <tr>
+      <td><span class="pill pill-emerald">Obligasi FR</span></td>
+      <td><strong>${esc(b.ticker)}</strong></td>
+      <td class="num-right">${formatQty(b.lots, 0)} Lot</td>
+      <td class="num-right">${formatIdr(b.avgPrice)}/lot</td>
+      <td class="num-right"><strong>${formatIdr(b.marketPrice)}</strong>/lot${b.pctPar ? ` <span class="tone-muted">(${b.pctPar.toFixed(2)}% par)</span>` : ''}</td>
+      <td><span class="pill ${b.pillClass}">${esc(b.source)}</span></td>
+      <td class="num-right"><strong>${formatIdr(b.marketValue)}</strong></td>
+      ${pnlCell(b.pnl)}
+    </tr>`));
+
+  if (p.goldGram > 0) {
+    rows.push(`
+    <tr>
+      <td><span class="pill pill-amber">Emas</span></td>
+      <td><strong>${GOLD_SYMBOL}</strong></td>
+      <td class="num-right">${formatQty(p.goldGram, 2)} Gram</td>
+      <td class="num-right">${formatIdr(p.goldAvgPrice)}/gr</td>
+      <td class="num-right"><strong>${formatIdr(p.goldMarketPrice)}</strong>/gr</td>
+      <td><span class="pill ${p.goldPillClass}">${esc(p.goldSource)}</span></td>
+      <td class="num-right"><strong>${formatIdr(p.goldValue)}</strong></td>
+      ${pnlCell(p.goldPnl)}
+    </tr>`);
+  }
+
+  if (p.cash > 0) {
+    rows.push(`
+    <tr>
+      <td><span class="pill pill-slate">Cash</span></td>
+      <td><strong>IDR</strong></td>
+      <td class="num-right">${formatIdr(p.cash)}</td>
+      <td class="num-right">Rp 1</td>
+      <td class="num-right">Rp 1</td>
+      <td><span class="pill pill-slate">Kas Rupiah</span></td>
+      <td class="num-right"><strong>${formatIdr(p.cash)}</strong></td>
+      <td class="num-right tone-muted">Rp 0</td>
+    </tr>`);
+  }
+
+  rows.push(`
+    <tr class="summary-row">
+      <td colspan="6" class="num-right">Unrealized P/L • Realized P/L (dari penjualan)</td>
+      ${pnlCell(p.unrealizedPnl)}
+    </tr>
+    <tr class="summary-row">
+      <td colspan="6" class="num-right"></td>
+      ${pnlCell(p.realizedPnl)}
+    </tr>`);
+
+  $('holdings-table-body').innerHTML = p.stocks.length || p.bonds.length || p.goldGram > 0 || p.cash > 0
+    ? rows.join('')
+    : '<tr><td colspan="8" class="empty-cell">Belum ada aset aktif.</td></tr>';
+}
+
+/* ==================== TAB 2: BELI / JUAL ==================== */
+function setTradeSide(side) {
+  tradeSide = side;
+  manualPriceOverride = null;
+  $('btn-side-buy').className = `seg-btn ${side === 'BUY' ? 'active-buy' : ''}`;
+  $('btn-side-sell').className = `seg-btn ${side === 'SELL' ? 'active-sell' : ''}`;
+  $('tx-funding-block').classList.toggle('hidden', side !== 'BUY');
+  const submitBtn = $('btn-submit-trade');
+  submitBtn.textContent = side === 'BUY' ? 'Eksekusi Pembelian' : 'Eksekusi Penjualan';
+  submitBtn.className = `btn ${side === 'BUY' ? 'btn-emerald' : 'btn-rose'}`;
+  handleTradeCategoryChange();
+}
+
+function refreshTickerSuggestions() {
+  const cat = $('tx-category').value;
+  const list = $('tx-ticker-list');
+  if (!list) return;
+  const names = new Set();
+  const p = computePortfolio(state);
+  if (cat === 'STOCK') {
+    p.stocks.forEach((s) => names.add(s.ticker));
+    if (tradeSide === 'BUY') Object.values(state.priceMap).filter((e) => e.assetType === 'STOCK').forEach((e) => names.add(e.symbol));
+  } else if (cat === 'BOND') {
+    p.bonds.forEach((b) => names.add(b.ticker));
+    if (tradeSide === 'BUY') Object.values(state.priceMap).filter((e) => e.assetType === 'FR').forEach((e) => names.add(e.symbol));
+  }
+  list.innerHTML = [...names].sort().map((n) => `<option value="${esc(n)}"></option>`).join('');
+}
+
+function handleTradeCategoryChange() {
+  const cat = $('tx-category').value;
+  const tickerBlock = $('tx-ticker-block');
+  const tickerInput = $('tx-ticker');
+  const qtyInput = $('tx-qty');
+  manualPriceOverride = null;
+
+  // Ganti kategori = ticker lama tidak relevan (sebelumnya "CASH" bisa terbawa ke ticker saham).
+  if (cat !== lastTradeCategory) {
+    tickerInput.value = '';
+    qtyInput.value = '';
+    lastTradeCategory = cat;
+  }
+
+  const setPriceBlocks = (visible) => {
+    $('tx-price-mode-block').classList.toggle('hidden', !visible);
+    $('tx-price-input-block').classList.toggle('hidden', !visible);
+  };
+
+  if (cat === 'STOCK') {
+    tickerBlock.classList.remove('hidden');
+    $('tx-ticker-label').textContent = 'Ticker Saham';
+    tickerInput.placeholder = 'Contoh: BBCA, BMRI, BBRI';
+    $('tx-ticker-help').textContent = 'Mengubah ticker langsung memperbarui harga pasar saat mode Harga Market aktif.';
+    $('tx-qty-label').textContent = 'Jumlah Lot';
+    qtyInput.step = '1'; qtyInput.min = '1'; qtyInput.placeholder = 'Contoh: 10';
+    setPriceBlocks(true);
+    $('tx-price-label').textContent = 'Harga per Lembar (IDR)';
+    $('tx-unit-formula').textContent = '1 lot = 100 lembar saham';
+  } else if (cat === 'BOND') {
+    tickerBlock.classList.remove('hidden');
+    $('tx-ticker-label').textContent = 'Seri Obligasi FR';
+    tickerInput.placeholder = 'Contoh: FR0100, FR0082, FR0096';
+    $('tx-ticker-help').textContent = 'Harga pasar dihitung dari % par (nominal par Rp 1.000.000 per lot).';
+    $('tx-qty-label').textContent = 'Jumlah Lot';
+    qtyInput.step = '1'; qtyInput.min = '1'; qtyInput.placeholder = 'Contoh: 10';
+    setPriceBlocks(true);
+    $('tx-price-label').textContent = 'Harga per Lot (IDR)';
+    $('tx-unit-formula').textContent = '1 lot FR = par Rp 1.000.000 × (% par pasar)';
+  } else if (cat === 'GOLD') {
+    tickerBlock.classList.add('hidden');
+    tickerInput.value = GOLD_SYMBOL;
+    $('tx-qty-label').textContent = 'Jumlah Gram';
+    qtyInput.step = 'any'; qtyInput.min = '0'; qtyInput.placeholder = 'Contoh: 5';
+    setPriceBlocks(true);
+    $('tx-price-label').textContent = 'Harga per Gram (IDR)';
+    $('tx-unit-formula').textContent = 'Total = Jumlah Gram × Harga per Gram';
+  } else {
+    tickerBlock.classList.add('hidden');
+    tickerInput.value = 'CASH';
+    $('tx-qty-label').textContent = 'Nominal Cash (IDR)';
+    qtyInput.step = '1'; qtyInput.min = '0'; qtyInput.placeholder = 'Contoh: 5000000';
+    setPriceBlocks(false);
+    $('tx-unit-formula').textContent = 'Kas Rupiah (1:1)';
+  }
+
+  $('tx-funding-block').classList.toggle('hidden', tradeSide !== 'BUY' || cat === 'CASH');
+  refreshTickerSuggestions();
+  syncTradePriceInputState();
+}
+
+function handleTradeTickerChange() {
+  const el = $('tx-ticker');
+  const clean = normTicker(el.value);
+  if (el.value !== clean) el.value = clean;
+  if (tradePriceMode === 'MARKET') {
+    manualPriceOverride = null;
+    syncTradePriceInputState();
+  } else {
+    updateTradeTotalPreview();
+  }
+}
+
+function handleTradePriceModeChange() {
+  tradePriceMode = $('tx-price-mode').value;
+  manualPriceOverride = null;
+  if (tradePriceMode === 'MANUAL') $('tx-price').value = '';
+  syncTradePriceInputState();
+}
+
+function handleTradePriceInput() {
+  const raw = $('tx-price').value;
+  manualPriceOverride = raw === '' ? null : toSafeNumber(raw, 0);
+  syncTradePriceInputState();
+}
+
+function syncTradePriceInputState() {
+  const cat = $('tx-category').value;
+  if (cat === 'CASH') {
+    updateTradeTotalPreview();
+    return;
+  }
+
+  const ticker = normTicker($('tx-ticker').value);
+  const priceInput = $('tx-price');
+  const badge = $('tx-price-badge');
+  const note = $('tx-price-note');
+
+  if (tradePriceMode === 'MARKET') {
+    const info = resolvePrice(cat, ticker);
+    priceInput.readOnly = true;
+    priceInput.value = info.missing ? '' : info.price;
+    badge.textContent = info.missing ? 'Harga belum tersedia' : `${info.source} (${cat === 'GOLD' ? GOLD_SYMBOL : ticker || '-'})`;
+    badge.className = `pill ${info.pillClass}`;
+    note.textContent = info.missing
+      ? 'Harga pasar untuk instrumen ini belum ada. Ganti ke "Harga Manual" atau pastikan ticker ada di sheet Prices.'
+      : 'Mengikuti harga otomatis dari Google Sheets / feed pasar.';
+  } else {
+    priceInput.readOnly = false;
+    if (manualPriceOverride === null && priceInput.value === '') {
+      badge.textContent = 'Manual (isi harga)';
+      badge.className = 'pill pill-amber';
+    } else {
+      badge.textContent = 'Harga Manual';
+      badge.className = 'pill pill-sky';
+    }
+    note.textContent = 'Isi harga eksekusi sebenarnya; total transaksi dihitung langsung.';
+  }
+  updateTradeTotalPreview();
+}
+
+function updateTradeTotalPreview() {
+  const p = computePortfolio(state);
+  $('tx-avail-cash').textContent = formatIdr(p.cash);
+
+  const cat = $('tx-category').value;
+  const qty = toSafeNumber($('tx-qty').value, 0);
+  const rawPrice = $('tx-price').value;
+  const unitPrice = rawPrice === '' ? 0 : toSafeNumber(rawPrice, 0);
+
+  let total;
+  if (cat === 'CASH') total = qty;
+  else if (cat === 'STOCK') total = qty * SHARES_PER_LOT * unitPrice;
+  else total = qty * unitPrice;
+
+  const finalTotal = Math.max(0, Math.round(total));
+  $('tx-total-preview').textContent = formatIdr(finalTotal);
+  return finalTotal;
+}
+
+function renderTradeTab() {
+  const p = computePortfolio(state);
+  $('tx-avail-cash').textContent = formatIdr(p.cash);
+  const realized = $('trade-realized-pill');
+  if (realized) {
+    realized.textContent = `Realized P/L: ${p.realizedPnl >= 0 ? '+' : ''}${formatIdr(p.realizedPnl)}`;
+    realized.className = `pill ${p.realizedPnl >= 0 ? 'pill-emerald' : 'pill-rose'}`;
+  }
+  renderPriceTiles();
+  refreshTickerSuggestions();
+  syncTradePriceInputState();
+
+  const tbody = $('trade-history-body');
+  const txs = [...(state.transactions || [])].sort((a, b) =>
+    String(b.date).localeCompare(String(a.date)) || (b.createdAt - a.createdAt));
+  if (!txs.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-cell">Belum ada transaksi.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = txs.map((tx) => {
+    const isBuy = tx.type === 'BUY';
+    const unitLabel = tx.category === 'STOCK' || tx.category === 'BOND' ? 'Lot' : tx.category === 'GOLD' ? 'Gram' : 'IDR';
+    return `
+      <tr>
+        <td>${esc(tx.date)}</td>
+        <td><span class="pill ${isBuy ? 'pill-emerald' : 'pill-rose'}">${isBuy ? 'BELI' : 'JUAL'}</span></td>
+        <td><strong>${esc(tx.ticker || tx.category)}</strong></td>
+        <td class="num-right">${formatQty(tx.qty, 2)} ${unitLabel}</td>
+        <td class="num-right">${formatIdr(tx.price)}</td>
+        <td class="num-right"><strong>${formatIdr(tx.total)}</strong></td>
+        <td class="num-right"><button type="button" class="btn btn-rose btn-sm" data-del-tx="${esc(tx.id)}" aria-label="Hapus transaksi">Hapus</button></td>
+      </tr>`;
+  }).join('');
+}
+
+function newIssuesAfter(candidateState) {
+  const before = new Set(computePortfolio(state).issues.map((i) => i.key));
+  return computePortfolio(candidateState).issues.filter((i) => !before.has(i.key));
+}
+
+function submitTradeForm(event) {
+  event.preventDefault();
+  const today = todayLocalISO();
+  const date = $('tx-date').value || today;
+  const cat = $('tx-category').value;
+  const ticker = cat === 'GOLD' ? GOLD_SYMBOL : cat === 'CASH' ? 'CASH' : normTicker($('tx-ticker').value);
+  const qty = toSafeNumber($('tx-qty').value, 0);
+  const rawPrice = $('tx-price').value;
+  const price = cat === 'CASH' ? 1 : (rawPrice === '' ? 0 : toSafeNumber(rawPrice, 0));
+  const total = updateTradeTotalPreview();
+  const fundingSource = tradeSide === 'SELL' ? 'TO_CASH'
+    : (cat === 'CASH' ? 'EXTERNAL_TOPUP' : (document.querySelector('input[name="txFunding"]:checked')?.value || 'CASH_BALANCE'));
+
+  if (date > today) { showToast('Tanggal transaksi tidak boleh di masa depan.', 'err'); return; }
+  if ((cat === 'STOCK' || cat === 'BOND') && !ticker) {
+    showToast('Isi Ticker Saham atau Seri Obligasi FR terlebih dahulu.', 'err');
+    return;
+  }
+  if (qty <= 0) { showToast('Jumlah harus lebih dari 0.', 'err'); return; }
+  if ((cat === 'STOCK' || cat === 'BOND') && !Number.isInteger(qty)) {
+    showToast('Jumlah lot harus bilangan bulat.', 'err');
+    return;
+  }
+  if (cat !== 'CASH' && price <= 0) {
+    showToast('Harga belum tersedia. Pakai "Harga Manual" dan isi harga eksekusi.', 'err');
+    return;
+  }
+  if (total <= 0) { showToast('Total transaksi harus lebih dari 0.', 'err'); return; }
+
+  const tx = {
+    id: 'tx-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+    date, type: tradeSide, category: cat, ticker, qty, price, total, fundingSource,
+    priceMode: cat === 'CASH' ? 'MARKET' : tradePriceMode,
+    createdAt: Date.now()
+  };
+
+  // Validasi dengan replay kronologis (juga menangkap transaksi bertanggal mundur).
+  const fresh = newIssuesAfter({ ...state, transactions: [tx, ...state.transactions] });
+  if (fresh.length) { showToast(fresh[0].msg, 'err'); return; }
+
+  state.transactions.unshift(tx);
+  manualPriceOverride = null;
+  saveState();
+  $('tx-qty').value = '';
+  $('tx-date').value = today;
+  renderAll();
+
+  pushToAppsScript({
+    trade: {
+      id: tx.id, date, action: tradeSide,
+      assetType: cat === 'BOND' ? 'FR' : cat,
+      tickerOrSeries: ticker, quantity: qty,
+      unit: cat === 'STOCK' || cat === 'BOND' ? 'Lot' : cat === 'GOLD' ? 'Gram' : 'IDR',
+      pricePerUnit: price, totalIDR: total, priceMode: tx.priceMode
+    }
+  });
+  showToast(`Transaksi ${tradeSide === 'BUY' ? 'Beli' : 'Jual'} ${ticker} berhasil dicatat.`, 'ok');
+}
+
+function deleteTransaction(id) {
+  const tx = state.transactions.find((t) => t.id === id);
+  if (!tx) return;
+  const remaining = state.transactions.filter((t) => t.id !== id);
+  const fresh = newIssuesAfter({ ...state, transactions: remaining });
+  if (fresh.length) {
+    showToast('Tidak bisa dihapus: transaksi lain bergantung padanya. ' + fresh[0].msg, 'err');
+    return;
+  }
+  if (!window.confirm(`Hapus transaksi ${tx.type === 'BUY' ? 'beli' : 'jual'} ${tx.ticker} tanggal ${tx.date}?\n\nCatatan: baris di sheet Trades tidak ikut terhapus.`)) return;
+  state.transactions = remaining;
+  state.pending.trades = state.pending.trades.filter((t) => t.id !== id);
+  saveState();
+  renderAll();
+  showToast('Transaksi dihapus dari aplikasi.', 'ok');
+}
+
+/* ==================== TAB 3: PROFILE & SETUP ==================== */
+function syncTopupInputs() {
+  const map = {
+    ONCE: 'Nominal Top Up Sekali (IDR)',
+    WEEKLY: 'Nominal Top Up Mingguan (IDR)',
+    MONTHLY: 'Nominal Top Up Bulanan (IDR)',
+    YEARLY: 'Nominal Top Up Tahunan (IDR)'
+  };
+  $('prof-topup-amount-label').textContent = map[$('prof-topup-type').value] || 'Nominal Top Up (IDR)';
+}
+
+function updateRoutineHint() {
+  const day = clamp(Math.round(toSafeNumber($('prof-advice-day').value, 25)), 1, 31);
+  const win = getThreeDayWindow(day, new Date());
+  $('prof-routine-hint').textContent =
+    `Aktif 3 hari berturut-turut mulai tanggal ${day} (bulan pendek memakai hari terakhir bulan). Jendela berikutnya: ${win.rangeLabel}.`;
+}
+
+function holdingRowHtml(kind, ticker, lots, avg) {
+  const isStock = kind === 'stock';
+  const cls = isStock ? 's' : 'b';
+  return `
+    <input type="text" class="in-${cls}-ticker" placeholder="${isStock ? 'Ticker (mis. BBNI)' : 'Seri (mis. FR0082)'}" value="${esc(ticker)}" maxlength="20" autocomplete="off" aria-label="${isStock ? 'Ticker' : 'Seri'}" />
+    <input type="number" class="in-${cls}-lots" placeholder="Lot" min="0" step="1" value="${esc(lots)}" aria-label="Jumlah lot" />
+    <input type="number" class="in-${cls}-avg" placeholder="${isStock ? 'Rata² /lembar' : 'Rata² /lot'}" min="0" step="any" value="${esc(avg)}" aria-label="Harga rata-rata (opsional)" />
+    <button type="button" class="btn btn-rose btn-sm" data-remove-row aria-label="Hapus baris">✕</button>`;
+}
+
+function addHoldingRow(kind, ticker = '', lots = '', avg = '') {
+  const list = $(kind === 'stock' ? 'prof-stocks-list' : 'prof-bonds-list');
+  const row = document.createElement('div');
+  row.className = `holding-row prof-${kind}-row`;
+  row.innerHTML = holdingRowHtml(kind, ticker, lots, avg);
+  list.appendChild(row);
+}
+function addInitialStockRow(ticker, lots, avg) { addHoldingRow('stock', ticker, lots, avg); }
+function addInitialBondRow(ticker, lots, avg) { addHoldingRow('bond', ticker, lots, avg); }
+
+function readHoldingRows(selector, cls) {
+  const rows = [];
+  document.querySelectorAll(selector).forEach((r) => {
+    const ticker = normTicker(r.querySelector(`.in-${cls}-ticker`)?.value);
+    const lots = toSafeNumber(r.querySelector(`.in-${cls}-lots`)?.value, 0);
+    const avgPrice = Math.max(0, toSafeNumber(r.querySelector(`.in-${cls}-avg`)?.value, 0));
+    if (ticker && lots > 0) rows.push({ ticker, lots, avgPrice });
+  });
+  return rows;
+}
+
+function readProfileDraftState() {
+  const num = (id, fb = 0) => toSafeNumber($(id)?.value, fb);
+  return {
+    ...state,
+    profile: {
+      targetRetirement: Math.max(0, num('prof-target')),
+      initialFund: Math.max(0, num('prof-initial-fund')),
+      horizonYears: clamp(Math.round(num('prof-horizon', 15)), 1, 50),
+      topupType: TOPUP_TYPES.includes($('prof-topup-type')?.value) ? $('prof-topup-type').value : 'MONTHLY',
+      topupAmount: Math.max(0, num('prof-topup-amount')),
+      adviceDay: clamp(Math.round(num('prof-advice-day', 25)), 1, 31),
+      expectedReturnPct: clamp(num('prof-return', DEFAULT_RETURN_PCT), 0, 30),
+      targetAlloc: {
+        stock: clamp(num('prof-alloc-stock'), 0, 100),
+        bond: clamp(num('prof-alloc-bond'), 0, 100),
+        gold: clamp(num('prof-alloc-gold'), 0, 100),
+        cash: clamp(num('prof-alloc-cash'), 0, 100)
+      },
+      updatedAt: state.profile.updatedAt
+    },
+    initialHoldings: {
+      cash: Math.max(0, num('prof-cash')),
+      goldGram: Math.max(0, num('prof-gold')),
+      goldAvgPrice: Math.max(0, num('prof-gold-avg')),
+      stocks: readHoldingRows('.prof-stock-row', 's'),
+      bonds: readHoldingRows('.prof-bond-row', 'b')
+    }
+  };
+}
+
+// Pratinjau ringan di Tab Profile (tanpa menggambar ulang seluruh dashboard).
+function previewProfileDraft() {
+  profileDirty = true;
+  const draft = readProfileDraftState();
+  const p = computePortfolio(draft);
+  const proj = computeProjection(p.totalAsset, draft.profile);
+  const a = draft.profile.targetAlloc;
+  const sum = a.stock + a.bond + a.gold + a.cash;
+
+  $('pv-total').textContent = formatIdr(p.totalAsset);
+  $('pv-projected').textContent = formatIdr(proj.projectedFv);
+  const status = $('pv-status');
+  status.textContent = proj.isOnTrack ? 'ON TRACK' : `Kurang ${formatIdr(proj.deficit)}`;
+  status.className = `pill ${proj.isOnTrack ? 'pill-emerald' : 'pill-amber'}`;
+  $('pv-extra').textContent = proj.isOnTrack ? '—' : `${formatIdr(proj.extraMonthly)}/bln`;
+
+  const sumEl = $('prof-alloc-sum');
+  sumEl.textContent = `Total: ${sum.toFixed(0)}%`;
+  sumEl.className = `pill ${Math.abs(sum - 100) < 0.01 ? 'pill-emerald' : 'pill-rose'}`;
+
+  const diff = draft.profile.initialFund > 0 ? draft.profile.initialFund - p.baselineCost : 0;
+  $('prof-fund-hint').textContent = draft.profile.initialFund > 0
+    ? `Biaya perolehan instrumen awal: ${formatIdr(p.baselineCost)} (selisih dengan Dana Awal: ${formatIdr(diff)}). Dana Awal menjadi dasar "Modal Bersih" & ROI.`
+    : 'Dana Awal kosong: modal bersih memakai biaya perolehan instrumen awal.';
+  const issue = p.missingPrices.length ? ` Harga belum tersedia: ${p.missingPrices.join(', ')}.` : '';
+  $('prof-fund-hint').textContent += issue;
+}
+
+function renderProfileTab() {
+  const prof = state.profile;
+  const init = state.initialHoldings;
+  const alloc = prof.targetAlloc || DEFAULT_ALLOC;
+
+  $('prof-target').value = prof.targetRetirement;
+  $('prof-initial-fund').value = prof.initialFund;
+  $('prof-topup-type').value = prof.topupType;
+  $('prof-topup-amount').value = prof.topupAmount;
+  $('prof-horizon').value = prof.horizonYears;
+  $('prof-advice-day').value = prof.adviceDay;
+  $('prof-return').value = prof.expectedReturnPct;
+  $('prof-alloc-stock').value = alloc.stock;
+  $('prof-alloc-bond').value = alloc.bond;
+  $('prof-alloc-gold').value = alloc.gold;
+  $('prof-alloc-cash').value = alloc.cash;
+
+  $('prof-cash').value = init.cash;
+  $('prof-gold').value = init.goldGram;
+  $('prof-gold-avg').value = init.goldAvgPrice || '';
+
+  $('prof-stocks-list').innerHTML = '';
+  (init.stocks || []).forEach((s) => addHoldingRow('stock', s.ticker, s.lots, s.avgPrice || ''));
+  $('prof-bonds-list').innerHTML = '';
+  (init.bonds || []).forEach((b) => addHoldingRow('bond', b.ticker, b.lots, b.avgPrice || ''));
+
+  syncTopupInputs();
+  updateRoutineHint();
+  profileDirty = false;
+  previewProfileDraft();
+  profileDirty = false;
+}
+
+function refreshProfileFormIfSafe() {
+  const visible = !$('view-profile').classList.contains('hidden');
+  if (visible && (profileDirty || isUserEditingForm())) return;
+  if (visible) renderProfileTab();
+}
+
+function saveProfileForm(event) {
+  event.preventDefault();
+  const draft = readProfileDraftState();
+  const a = draft.profile.targetAlloc;
+  const sum = a.stock + a.bond + a.gold + a.cash;
+  if (Math.abs(sum - 100) > 0.01) {
+    showToast(`Total target alokasi harus 100% (saat ini ${sum.toFixed(0)}%).`, 'err');
+    return;
+  }
+  if (draft.profile.targetRetirement <= 0) {
+    showToast('Target dana pensiun harus lebih dari 0.', 'err');
+    return;
+  }
+
+  state.profile = { ...draft.profile, updatedAt: new Date().toISOString() };
+  state.initialHoldings = draft.initialHoldings;
+  profileDirty = false;
+  saveState();
+  pushToAppsScript({ profile: buildProfilePayload() });
+  switchTab('dashboard');
+  showToast('Profile disimpan' + (getGasUrl() ? ' & dikirim ke Google Sheets.' : '.'), 'ok');
+}
+
+/* ==================== BACKUP (EKSPOR / IMPOR) ==================== */
+function exportBackup() {
+  const payload = {
+    app: 'PortofolioPensiun',
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    profile: state.profile,
+    initialHoldings: state.initialHoldings,
+    transactions: state.transactions,
+    snapshots: state.snapshots
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `portofolio-pensiun-backup-${todayLocalISO()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  showToast('Backup diunduh.', 'ok');
+}
+
+function importBackupFile(input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onerror = () => showToast('Gagal membaca file.', 'err');
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(String(reader.result));
+      if (!data || data.app !== 'PortofolioPensiun' || !data.profile || !data.initialHoldings) {
+        throw new Error('Format bukan backup PortofolioPensiun');
+      }
+      if (!window.confirm('Impor akan MENGGANTI profil, instrumen awal, transaksi, dan snapshot di perangkat ini. Lanjutkan?')) return;
+      const imported = normalizeState({
+        profile: data.profile,
+        initialHoldings: data.initialHoldings,
+        transactions: data.transactions || [],
+        snapshots: data.snapshots || [],
+        priceMap: state.priceMap,
+        lastSyncAt: state.lastSyncAt
+      });
+      imported.profile.updatedAt = new Date().toISOString();
+      imported.syncStatus = state.syncStatus;
+      state = imported;
+      profileDirty = false;
+      saveState();
+      pushToAppsScript({ profile: buildProfilePayload() });
+      renderAll();
+      renderProfileTab();
+      showToast('Backup berhasil diimpor.', 'ok');
+    } catch (e) {
+      showToast('Impor gagal: ' + (e && e.message ? e.message : 'file tidak valid'), 'err');
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ==================== TAB, MODAL & PWA ==================== */
+function switchTab(tabName) {
+  ['dashboard', 'trade', 'profile'].forEach((t) => {
+    const isCurrent = t === tabName;
+    $(`view-${t}`).classList.toggle('hidden', !isCurrent);
+    const btn = $(`tab-${t}`);
+    btn.classList.toggle('active', isCurrent);
+    btn.setAttribute('aria-selected', String(isCurrent));
+  });
+  if (tabName === 'dashboard') {
+    profileDirty = false; // draft yang belum disimpan dibuang saat keluar dari Tab Profile
+    renderDashboard();
+  } else if (tabName === 'trade') {
+    profileDirty = false;
+    const today = todayLocalISO();
+    $('tx-date').max = today;
+    if (!$('tx-date').value) $('tx-date').value = today;
+    renderTradeTab();
+  } else if (tabName === 'profile') {
+    renderProfileTab();
+  }
+}
+
+function openGasModal() {
+  const editor = $('gas-script-editor');
+  if (!editor.value) editor.value = $('gas-script-source').textContent.replace(/^\n/, '');
+  $('gas-modal').classList.remove('hidden');
+}
+function closeGasModal() { $('gas-modal').classList.add('hidden'); }
+
+async function copyAppsScript() {
+  const editor = $('gas-script-editor');
+  if (!editor.value) editor.value = $('gas-script-source').textContent.replace(/^\n/, '');
+  try {
+    await navigator.clipboard.writeText(editor.value);
+    showToast('Kode Code.gs berhasil disalin.', 'ok');
+  } catch (e) {
+    editor.select();
+    try {
+      document.execCommand('copy');
+      showToast('Kode Code.gs berhasil disalin.', 'ok');
+    } catch (e2) {
+      showToast('Gagal menyalin otomatis, silakan salin manual.', 'err');
+    }
+  }
+}
+
+function openResetModal() { $('reset-modal').classList.remove('hidden'); }
+function closeResetModal() { $('reset-modal').classList.add('hidden'); }
+
+function executeResetData() {
+  const { syncStatus, priceMap, lastSyncAt } = state; // harga live & status sync tetap dipertahankan
+  state = clone(SEED_STATE);
+  state.syncStatus = syncStatus;
+  state.priceMap = priceMap;
+  state.lastSyncAt = lastSyncAt;
+  state.profile.updatedAt = new Date().toISOString(); // lebih baru dari sheet → tidak tertimpa sync berikutnya
+  manualPriceOverride = null;
+  profileDirty = false;
+  saveState();
+  closeResetModal();
+  pushToAppsScript({ profile: buildProfilePayload() });
+  renderAll();
+  if (!$('view-profile').classList.contains('hidden')) renderProfileTab();
+  showToast('Data portofolio direset ke pengaturan awal.', 'ok');
+}
+
+function setupPwa() {
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    navigator.serviceWorker.register('sw.js').catch(() => { /* file sw.js belum di-hosting: abaikan */ });
+  }
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    $('btn-install-pwa').classList.remove('hidden');
+  });
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    $('btn-install-pwa').classList.add('hidden');
+  });
+}
+
+async function installPwaApp() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  $('btn-install-pwa').classList.add('hidden');
+}
+
+function initBackgroundAutoSync() {
+  runBackgroundSync({ refreshPrices: false });
+
+  if (autoSyncIntervalId) clearInterval(autoSyncIntervalId);
+  autoSyncIntervalId = setInterval(() => {
+    if (!document.hidden) runBackgroundSync({ refreshPrices: false });
+  }, AUTO_SYNC_MS);
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      runBackgroundSync({ refreshPrices: false });
+      // Hari bisa berganti saat aplikasi dibiarkan terbuka: segarkan tanggal & jendela AI.
+      if (!$('view-dashboard').classList.contains('hidden')) renderDashboard();
+    }
+  });
+  window.addEventListener('focus', () => runBackgroundSync({ refreshPrices: false }));
+  window.addEventListener('online', () => runBackgroundSync({ refreshPrices: true, notify: true }));
+  window.addEventListener('offline', () => {
+    if (getGasUrl()) state.syncStatus = 'OFFLINE';
+    state.lastSyncError = 'Perangkat offline';
+    updateSyncUi();
+  });
+}
+
+function renderAll() {
+  renderDashboard();
+  renderTradeTab();
+  // Form profil tidak dibangun ulang di sini agar draft pengguna tidak hilang.
+}
+
+/* ==================== INIT ==================== */
+window.addEventListener('resize', () => {
+  if (!$('view-dashboard').classList.contains('hidden')) renderGrowthChart();
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  $('top-gas-url').value = getGasUrl();
+  const today = todayLocalISO();
+  $('tx-date').value = today;
+  $('tx-date').max = today;
+
+  // Delegasi event: hapus transaksi & hapus baris instrumen awal.
+  $('trade-history-body').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-del-tx]');
+    if (btn) deleteTransaction(btn.getAttribute('data-del-tx'));
+  });
+  $('view-profile').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-remove-row]');
+    if (btn) { btn.parentElement.remove(); previewProfileDraft(); }
+  });
+  $('view-profile').addEventListener('input', (e) => {
+    const t = e.target;
+    if (t.matches('.in-s-ticker, .in-b-ticker')) {
+      const clean = normTicker(t.value);
+      if (t.value !== clean) t.value = clean;
+    }
+    if (t.matches('.in-s-ticker, .in-s-lots, .in-s-avg, .in-b-ticker, .in-b-lots, .in-b-avg')) previewProfileDraft();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    closeGasModal();
+    closeResetModal();
+  });
+  ['gas-modal', 'reset-modal'].forEach((id) => {
+    $(id).addEventListener('click', (e) => { if (e.target === $(id)) $(id).classList.add('hidden'); });
+  });
+
+  setupPwa();
+  handleTradeCategoryChange();
+  renderAll();
+  initBackgroundAutoSync();
+});
+
+  </script>
+</body>
+</html>
