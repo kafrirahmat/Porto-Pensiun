@@ -1495,7 +1495,7 @@
 
             <div class="stack-md">
               <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                <label style="font-size:12.5px; font-weight:700; color:var(--text-primary);">Obligasi FR Awal (Seri, Lot, Rata-rata/lot)</label>
+                <label style="font-size:12.5px; font-weight:700; color:var(--text-primary);">Obligasi FR Awal (Seri, Lot, Rata-rata % par)</label>
                 <button type="button" class="btn btn-ghost" style="padding:5px 10px; font-size:11.5px;" onclick="addInitialBondRow()">+ Seri FR</button>
               </div>
               <div id="prof-bonds-list" class="stack-md"></div>
@@ -1557,7 +1557,8 @@
 const SHEET_NAMES = {
   PROFILE: 'Profile',
   TRADES: 'Trades',
-  PRICES: 'Prices'
+  PRICES: 'Prices',
+  BONDS: 'Obligasi'
 };
 
 // Opsional: jika diisi, doGet/doPost menolak permintaan tanpa ?token=<API_TOKEN>.
@@ -1583,6 +1584,13 @@ const GOLD_CONFIG = {
 const FR_CONFIG = {
   endpointUrl: '',
   apiKey: ''
+};
+
+// Sumber harga sekunder obligasi (tabel di halaman BCA). Hasil scraping disimpan di tab "Obligasi",
+// lalu harga tengah (rata-rata Buy & Sell, dalam % par) dipakai untuk baris FR di sheet Prices.
+const BOND_SOURCE = {
+  enabled: true,
+  url: 'https://www.bca.co.id/en/individu/produk/investasi-dan-asuransi/obligasi/pilihan-produk-obligasi'
 };
 
 // Kolom sheet Prices (A..I)
@@ -1675,6 +1683,7 @@ function syncMarketPrices() {
     const formulas = sheet.getRange(2, 3, lastRow - 1, 1).getFormulas();
     const now = new Date();
     const gold = fetchGoldPriceIDR_();
+    const bondMap = syncBondTable_();
 
     for (let i = 0; i < data.length; i++) {
       const row = i + 2;
@@ -1705,12 +1714,14 @@ function syncMarketPrices() {
         }
       } else if (assetType === 'FR') {
         const onlinePct = fetchFRPricePct_(symbol);
-        if (onlinePct > 0) {
-          sheet.getRange(row, 3).setValue(onlinePct);
-          sheet.getRange(row, 5).setValue('ONLINE_FR_FEED');
+        const tablePct = bondMap[symbol] ? bondMap[symbol].mid : 0;
+        const pct = onlinePct > 0 ? onlinePct : tablePct;
+        if (pct > 0) {
+          sheet.getRange(row, 3).setValue(pct);
+          sheet.getRange(row, 5).setValue(onlinePct > 0 ? 'ONLINE_FR_FEED' : 'BCA_SECONDARY');
           sheet.getRange(row, 6).setValue(now);
         }
-        // Tanpa feed online: nilai manual di sheet dipertahankan apa adanya
+        // Tanpa data online: nilai manual di sheet dipertahankan apa adanya
         // dan UpdatedAt TIDAK diubah agar tidak tampak lebih segar dari kenyataan.
       }
     }
@@ -1719,6 +1730,110 @@ function syncMarketPrices() {
     return true;
   } finally {
     lock.releaseLock();
+  }
+}
+
+/* ===================== SCRAPING TABEL OBLIGASI ===================== */
+
+function toNum_(text) {
+  let t = String(text || '').replace(/[^0-9.,-]/g, '');
+  if (!t) return 0;
+  if (t.indexOf(',') !== -1 && t.indexOf('.') === -1) t = t.replace(',', '.');
+  else t = t.replace(/,/g, '');
+  const n = Number(t);
+  return isFinite(n) ? n : 0;
+}
+
+function cleanCell_(htmlFragment) {
+  return String(htmlFragment)
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Mengurai baris <tr> yang memuat kode seri. Kolom setelah nama produk:
+// Maturity, Coupon, Buy Price (%), Sell Price (%), YTM, Last Updated.
+function parseBondRows_(html) {
+  const out = [];
+  const trs = html.match(/<tr[\s\S]*?<\/tr>/gi) || [];
+  const codeRe = /\b(FR\d{4}|ORI\d{3}T\d|SR\d{3}T\d|PBS\d{3}|USDFR\d{4})\b/i;
+
+  trs.forEach(function (tr) {
+    const cells = (tr.match(/<t[dh][\s\S]*?<\/t[dh]>/gi) || []).map(cleanCell_);
+    let idx = -1;
+    for (let i = 0; i < cells.length; i++) {
+      if (codeRe.test(cells[i])) { idx = i; break; }
+    }
+    if (idx === -1) return;
+
+    const code = cells[idx].match(codeRe)[1].toUpperCase();
+    const buy = toNum_(cells[idx + 3]);
+    const sell = toNum_(cells[idx + 4]);
+    const valid = function (v) { return v > 10 && v < 300; };
+    if (!valid(buy) && !valid(sell)) return;
+
+    const mid = valid(buy) && valid(sell) ? (buy + sell) / 2 : (valid(buy) ? buy : sell);
+    out.push({
+      code: code,
+      maturity: cells[idx + 1] || '',
+      coupon: toNum_(cells[idx + 2]),
+      buy: valid(buy) ? buy : '',
+      sell: valid(sell) ? sell : '',
+      mid: Math.round(mid * 10000) / 10000,
+      ytm: toNum_(cells[idx + 5]),
+      sourceUpdated: cells[idx + 6] || ''
+    });
+  });
+  return out;
+}
+
+// Mengambil halaman, menulis tab "Obligasi", mengembalikan peta {KODE: {mid, ...}}.
+function syncBondTable_() {
+  const map = {};
+  if (!BOND_SOURCE.enabled || !BOND_SOURCE.url) return map;
+  try {
+    const res = UrlFetchApp.fetch(BOND_SOURCE.url, {
+      muteHttpExceptions: true,
+      followRedirects: true,
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Accept-Language': 'en' }
+    });
+    if (res.getResponseCode() !== 200) return map;
+
+    const rows = parseBondRows_(res.getContentText());
+    if (!rows.length) return map; // halaman dimuat via JavaScript / struktur berubah: data lama dipertahankan
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName(SHEET_NAMES.BONDS);
+    if (!sheet) sheet = ss.insertSheet(SHEET_NAMES.BONDS);
+
+    const now = new Date();
+    const values = [['Series', 'Maturity', 'Coupon %', 'Buy %', 'Sell %', 'Mid % (dipakai)', 'YTM %', 'SourceUpdated', 'FetchedAt']];
+    rows.forEach(function (r) {
+      values.push([r.code, r.maturity, r.coupon, r.buy, r.sell, r.mid, r.ytm, r.sourceUpdated, now]);
+      map[r.code] = r;
+    });
+    sheet.clear();
+    sheet.getRange(1, 1, values.length, values[0].length).setValues(values);
+    sheet.setFrozenRows(1);
+  } catch (err) {
+    // abaikan: harga lama di sheet tetap dipakai
+  }
+  return map;
+}
+
+// Jalankan manual dari editor untuk memeriksa apakah halaman sumber bisa dibaca.
+function testBondScrape() {
+  const res = UrlFetchApp.fetch(BOND_SOURCE.url, { muteHttpExceptions: true, headers: { 'User-Agent': 'Mozilla/5.0' } });
+  const rows = parseBondRows_(res.getContentText());
+  Logger.log('HTTP ' + res.getResponseCode() + ' | baris obligasi terbaca: ' + rows.length);
+  if (rows.length) {
+    Logger.log('Contoh: ' + JSON.stringify(rows[0]));
+    const fr = rows.filter(function (r) { return /^FR/.test(r.code); }).length;
+    Logger.log('Seri FR terbaca: ' + fr);
+  } else {
+    Logger.log('0 baris: tabel kemungkinan dimuat lewat JavaScript atau strukturnya berbeda. Lihat panduan di chat.');
   }
 }
 
@@ -1897,6 +2012,8 @@ function doGet(e) {
     });
   }
 
+  addHeldBondPrices_(prices, profile, trades);
+
   return json_({
     status: 'ok',
     refreshed: refreshed,
@@ -1904,6 +2021,44 @@ function doGet(e) {
     prices: prices,
     profile: profile,
     trades: trades
+  });
+}
+
+// Melengkapi harga seri FR yang Anda pegang langsung dari tab "Obligasi",
+// sehingga cukup mengisi ticker di aplikasi (tanpa menambah baris manual di Prices).
+function addHeldBondPrices_(prices, profile, trades) {
+  const held = {};
+  try {
+    const bonds = typeof profile.bonds === 'string' ? JSON.parse(profile.bonds) : (profile.bonds || []);
+    (bonds || []).forEach(function (b) { if (b && b.ticker) held[String(b.ticker).trim().toUpperCase()] = true; });
+  } catch (e) { /* abaikan */ }
+  trades.forEach(function (t) {
+    if (String(t.assetType).toUpperCase() === 'FR' && t.tickerOrSeries) held[String(t.tickerOrSeries).trim().toUpperCase()] = true;
+  });
+  const codes = Object.keys(held);
+  if (!codes.length) return;
+
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.BONDS);
+  if (!sheet || sheet.getLastRow() < 2) return;
+  const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 9).getValues();
+  const byCode = {};
+  rows.forEach(function (r) { byCode[String(r[0]).trim().toUpperCase()] = r; });
+
+  codes.forEach(function (code) {
+    const r = byCode[code];
+    if (!r) return;
+    const mid = Number(r[5]) || 0;
+    const existing = prices[code];
+    if (mid > 0 && (!existing || !(existing.price > 0))) {
+      prices[code] = {
+        assetType: 'FR',
+        symbol: code,
+        price: mid,
+        unit: '% par',
+        source: 'BCA_SECONDARY',
+        updatedAt: toIso_(r[8])
+      };
+    }
   });
 }
 
@@ -2037,6 +2192,18 @@ function ensureSymbolsInPricesSheet_(stockTickers, frSeries) {
       <div style="display:flex; justify-content:flex-end; gap:10px;">
         <button type="button" class="btn btn-ghost" onclick="closeResetModal()">Batal</button>
         <button type="button" class="btn btn-rose" onclick="executeResetData()">Ya, Reset Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Konfirmasi (pengganti window.confirm) -->
+  <div id="confirm-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal-panel" style="max-width:440px;">
+      <h3 id="confirm-title" style="margin:0 0 8px; font-size:17px; font-weight:800; color:var(--text-primary);">Konfirmasi</h3>
+      <p id="confirm-msg" style="margin:0 0 18px; font-size:13px; color:var(--text-secondary); white-space:pre-line;"></p>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button type="button" class="btn btn-ghost" onclick="closeConfirm(false)">Batal</button>
+        <button type="button" class="btn btn-rose" id="confirm-ok" onclick="closeConfirm(true)">Ya</button>
       </div>
     </div>
   </div>
@@ -2348,7 +2515,7 @@ let lastManualRefreshAt = 0;
 /* ==================== HARGA ==================== */
 function sourcePillClass(source) {
   const s = String(source || '').toUpperCase();
-  if (['GOOGLEFINANCE', 'YAHOO_JSON', 'YAHOO_SPOT_FX', 'ONLINE_FR_FEED', 'CUSTOM_JSON'].includes(s)) return 'pill-emerald';
+  if (['GOOGLEFINANCE', 'YAHOO_JSON', 'YAHOO_SPOT_FX', 'ONLINE_FR_FEED', 'BCA_SECONDARY', 'CUSTOM_JSON'].includes(s)) return 'pill-emerald';
   if (s === 'SHEET_REFERENCE' || s === 'MANUAL_INPUT') return 'pill-sky';
   return 'pill-amber';
 }
@@ -3552,6 +3719,12 @@ function submitTradeForm(event) {
   const fresh = newIssuesAfter({ ...state, transactions: [tx, ...state.transactions] });
   if (fresh.length) { showToast(fresh[0].msg, 'err'); return; }
 
+  if ((cat === 'STOCK' || cat === 'BOND') && resolvePrice(cat, ticker).missing) {
+    // Instrumen tanpa harga pasar (mis. seri FR baru): pakai harga transaksi terakhir sebagai acuan valuasi.
+    state.priceMap[ticker] = cat === 'BOND'
+      ? { assetType: 'FR', symbol: ticker, price: (price / BOND_PAR_PER_LOT) * 100, unit: '% par', source: 'MANUAL_INPUT', updatedAt: new Date().toISOString() }
+      : { assetType: 'STOCK', symbol: ticker, price, unit: 'IDR/lembar', source: 'MANUAL_INPUT', updatedAt: new Date().toISOString() };
+  }
   state.transactions.unshift(tx);
   manualPriceOverride = null;
   saveState();
@@ -3571,21 +3744,38 @@ function submitTradeForm(event) {
   showToast(`Transaksi ${tradeSide === 'BUY' ? 'Beli' : 'Jual'} ${ticker} berhasil dicatat.`, 'ok');
 }
 
+let confirmCallback = null;
+function askConfirm(message, onYes, okLabel = 'Ya, Lanjutkan') {
+  confirmCallback = onYes;
+  $('confirm-msg').textContent = message;
+  $('confirm-ok').textContent = okLabel;
+  $('confirm-modal').classList.remove('hidden');
+}
+function closeConfirm(yes) {
+  $('confirm-modal').classList.add('hidden');
+  const cb = confirmCallback;
+  confirmCallback = null;
+  if (yes && cb) cb();
+}
+
 function deleteTransaction(id) {
   const tx = state.transactions.find((t) => t.id === id);
   if (!tx) return;
   const remaining = state.transactions.filter((t) => t.id !== id);
   const fresh = newIssuesAfter({ ...state, transactions: remaining });
+  const doDelete = () => {
+    state.transactions = remaining;
+    state.pending.trades = state.pending.trades.filter((t) => t.id !== id);
+    saveState();
+    renderAll();
+    showToast('Transaksi dihapus dari aplikasi.', 'ok');
+  };
+  const base = `Hapus transaksi ${tx.type === 'BUY' ? 'beli' : 'jual'} ${tx.ticker} tanggal ${tx.date}?\n\nBaris di sheet Trades tidak ikut terhapus.`;
   if (fresh.length) {
-    showToast('Tidak bisa dihapus: transaksi lain bergantung padanya. ' + fresh[0].msg, 'err');
-    return;
+    askConfirm(`${base}\n\nPeringatan: setelah dihapus, riwayat lain menjadi tidak konsisten (${fresh[0].msg}). Tetap hapus?`, doDelete, 'Tetap Hapus');
+  } else {
+    askConfirm(base, doDelete, 'Ya, Hapus');
   }
-  if (!window.confirm(`Hapus transaksi ${tx.type === 'BUY' ? 'beli' : 'jual'} ${tx.ticker} tanggal ${tx.date}?\n\nCatatan: baris di sheet Trades tidak ikut terhapus.`)) return;
-  state.transactions = remaining;
-  state.pending.trades = state.pending.trades.filter((t) => t.id !== id);
-  saveState();
-  renderAll();
-  showToast('Transaksi dihapus dari aplikasi.', 'ok');
 }
 
 /* ==================== TAB 3: PROFILE & SETUP ==================== */
@@ -3612,7 +3802,7 @@ function holdingRowHtml(kind, ticker, lots, avg) {
   return `
     <input type="text" class="in-${cls}-ticker" placeholder="${isStock ? 'Ticker (mis. BBNI)' : 'Seri (mis. FR0082)'}" value="${esc(ticker)}" maxlength="20" autocomplete="off" aria-label="${isStock ? 'Ticker' : 'Seri'}" />
     <input type="number" class="in-${cls}-lots" placeholder="Lot" min="0" step="1" value="${esc(lots)}" aria-label="Jumlah lot" />
-    <input type="number" class="in-${cls}-avg" placeholder="${isStock ? 'Rata² /lembar' : 'Rata² /lot'}" min="0" step="any" value="${esc(avg)}" aria-label="Harga rata-rata (opsional)" />
+    <input type="number" class="in-${cls}-avg" placeholder="${isStock ? 'Rata² Rp/lembar' : 'Rata² % par'}" min="0" step="any" value="${esc(avg)}" aria-label="Harga rata-rata (opsional)" />
     <button type="button" class="btn btn-rose btn-sm" data-remove-row aria-label="Hapus baris">✕</button>`;
 }
 
@@ -3631,7 +3821,8 @@ function readHoldingRows(selector, cls) {
   document.querySelectorAll(selector).forEach((r) => {
     const ticker = normTicker(r.querySelector(`.in-${cls}-ticker`)?.value);
     const lots = toSafeNumber(r.querySelector(`.in-${cls}-lots`)?.value, 0);
-    const avgPrice = Math.max(0, toSafeNumber(r.querySelector(`.in-${cls}-avg`)?.value, 0));
+    let avgPrice = Math.max(0, toSafeNumber(r.querySelector(`.in-${cls}-avg`)?.value, 0));
+    if (cls === 'b') avgPrice = (avgPrice / 100) * BOND_PAR_PER_LOT; // input FR dalam % par -> Rp per lot
     if (ticker && lots > 0) rows.push({ ticker, lots, avgPrice });
   });
   return rows;
@@ -3719,7 +3910,7 @@ function renderProfileTab() {
   $('prof-stocks-list').innerHTML = '';
   (init.stocks || []).forEach((s) => addHoldingRow('stock', s.ticker, s.lots, s.avgPrice || ''));
   $('prof-bonds-list').innerHTML = '';
-  (init.bonds || []).forEach((b) => addHoldingRow('bond', b.ticker, b.lots, b.avgPrice || ''));
+  (init.bonds || []).forEach((b) => addHoldingRow('bond', b.ticker, b.lots, b.avgPrice ? +((b.avgPrice / BOND_PAR_PER_LOT) * 100).toFixed(4) : ''));
 
   syncTopupInputs();
   updateRoutineHint();
@@ -3790,24 +3981,25 @@ function importBackupFile(input) {
       if (!data || data.app !== 'PortofolioPensiun' || !data.profile || !data.initialHoldings) {
         throw new Error('Format bukan backup PortofolioPensiun');
       }
-      if (!window.confirm('Impor akan MENGGANTI profil, instrumen awal, transaksi, dan snapshot di perangkat ini. Lanjutkan?')) return;
-      const imported = normalizeState({
-        profile: data.profile,
-        initialHoldings: data.initialHoldings,
-        transactions: data.transactions || [],
-        snapshots: data.snapshots || [],
-        priceMap: state.priceMap,
-        lastSyncAt: state.lastSyncAt
-      });
-      imported.profile.updatedAt = new Date().toISOString();
-      imported.syncStatus = state.syncStatus;
-      state = imported;
-      profileDirty = false;
-      saveState();
-      pushToAppsScript({ profile: buildProfilePayload() });
-      renderAll();
-      renderProfileTab();
-      showToast('Backup berhasil diimpor.', 'ok');
+      askConfirm('Impor akan MENGGANTI profil, instrumen awal, transaksi, dan snapshot di perangkat ini. Lanjutkan?', () => {
+        const imported = normalizeState({
+          profile: data.profile,
+          initialHoldings: data.initialHoldings,
+          transactions: data.transactions || [],
+          snapshots: data.snapshots || [],
+          priceMap: state.priceMap,
+          lastSyncAt: state.lastSyncAt
+        });
+        imported.profile.updatedAt = new Date().toISOString();
+        imported.syncStatus = state.syncStatus;
+        state = imported;
+        profileDirty = false;
+        saveState();
+        pushToAppsScript({ profile: buildProfilePayload() });
+        renderAll();
+        renderProfileTab();
+        showToast('Backup berhasil diimpor.', 'ok');
+      }, 'Ya, Impor');
     } catch (e) {
       showToast('Impor gagal: ' + (e && e.message ? e.message : 'file tidak valid'), 'err');
     }
@@ -3968,9 +4160,10 @@ window.addEventListener('DOMContentLoaded', () => {
     if (e.key !== 'Escape') return;
     closeGasModal();
     closeResetModal();
+    closeConfirm(false);
   });
-  ['gas-modal', 'reset-modal'].forEach((id) => {
-    $(id).addEventListener('click', (e) => { if (e.target === $(id)) $(id).classList.add('hidden'); });
+  ['gas-modal', 'reset-modal', 'confirm-modal'].forEach((id) => {
+    $(id).addEventListener('click', (e) => { if (e.target === $(id)) { if (id === 'confirm-modal') closeConfirm(false); else $(id).classList.add('hidden'); } });
   });
 
   setupPwa();
